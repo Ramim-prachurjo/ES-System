@@ -109,3 +109,116 @@
   }
   .pay-link:hover { background: rgba(100,180,220,0.1); }
 </style>
+
+<div class="page-header">
+  <h1>📋 My History</h1>
+  <p>All your venue bookings and tournaments — past and currently active.</p>
+</div>
+
+<!-- ── Venue Bookings ── -->
+<div class="section-title">🏟 Venue Bookings</div>
+
+<table class="history-table">
+  <thead>
+    <tr>
+      <th>Venue</th>
+      <th>City</th>
+      <th>Dates</th>
+      <th>Booking Status</th>
+      <th>Payment</th>
+      <th>Requested</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in venue_bookings %}
+    <tr>
+      <td>{{ booking.venue.name }}</td>
+      <td style="color:#a89a9a;">{{ booking.venue.city }}</td>
+      <td style="color:#a89a9a;">{{ booking.start_date }} → {{ booking.end_date }}</td>
+      <td><span class="badge {{ booking.status }}">{{ booking.get_status_display }}</span></td>
+      <td>
+        {% if booking.payment_required %}
+        
+          {% if booking.payment_confirmed %}
+            <span class="pay-badge confirmed">✓ Paid</span>
+          {% else %}
+            <span class="pay-badge required">⏳ Pending</span>
+          {% endif %}
+        {% else %}
+          <span class="pay-badge none">Not Required</span>
+        {% endif %}
+      </td>
+      <td style="color:#6a5a5a;">{{ booking.created_at|date:"M d, Y" }}</td>
+      <td>
+    {% if booking.payment_required %}
+        {% if booking.payment_confirmed %}
+            <a href="{% url 'venue_booking_payment' booking.pk %}" class="pay-link">🧾 View Slip</a>
+        {% else %}
+            <a href="{% url 'venue_booking_payment' booking.pk %}" class="pay-link">💳 View Slip</a>
+        {% endif %}
+    {% else %}
+        <span style="color:#4a3a3a; font-size:12px;">—</span>
+    {% endif %}
+</td>
+    </tr>
+    {% empty %}
+    <tr class="empty-row">
+      <td colspan="7">You have not made any venue bookings yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ── Tournaments ── -->
+<div class="section-title">🏆 Tournaments</div>
+
+<table class="history-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Games</th>
+      <th>Venue</th>
+      <th>Dates</th>
+      <th>Status</th>
+      <th>Venue Payment</th>
+      <th>Created</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tournaments %}
+    <tr>
+      <td>{{ t.name }}</td>
+      <td style="color:#a89a9a;">{{ t.get_games_display }}</td>
+      <td style="color:#a89a9a;">{{ t.venue.name|default:"TBA" }}</td>
+      <td style="color:#a89a9a;">{{ t.start_date }} → {{ t.end_date }}</td>
+      <td><span class="badge {{ t.status }}">{{ t.get_status_display }}</span></td>
+      <td>
+        {% if t.venue_payment_required %}
+          {% if t.venue_payment_confirmed %}
+            <span class="pay-badge confirmed">✓ Paid</span>
+          {% else %}
+            <span class="pay-badge required">⏳ Pending</span>
+          {% endif %}
+        {% else %}
+          <span class="pay-badge none">Not Required</span>
+        {% endif %}
+      </td>
+      <td style="color:#6a5a5a;">{{ t.created_at|date:"M d, Y" }}</td>
+      <td>
+    <a href="{% url 'tournament_detail' t.pk %}" class="view-link">View</a>
+    {% if t.venue_payment_required %}
+        <a href="{% url 'tournament_payment_info' t.pk %}" class="pay-link">🧾 Slip</a>
+    {% endif %}
+</td>
+    </tr>
+    {% empty %}
+    <tr class="empty-row">
+      <td colspan="8">You have not created any tournaments yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
