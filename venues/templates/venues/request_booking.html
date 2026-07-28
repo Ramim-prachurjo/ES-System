@@ -61,3 +61,31 @@
     text-decoration: none;
   }
 </style>
+
+<div class="booking-wrap">
+  <div class="booking-card">
+
+    <h2>📅 Request Booking</h2>
+
+    <div class="venue-info">
+      {{ venue.name }} <br>
+      📍 {{ venue.city }} | 👥 Capacity: {{ venue.capacity }}
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Submit Request</button>
+    </form>
+
+  </div>
+
+  <a href="{% url 'venue_list' %}" class="btn-back">← Back to Venues</a>
+</div>
+
+{% endblock %}
+
+
+
+
+
