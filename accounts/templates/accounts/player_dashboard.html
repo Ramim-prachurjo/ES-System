@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load notif_tags %}
 {% block title %}Player Dashboard{% endblock %}
 
 {% block content %}
@@ -39,53 +40,100 @@
   }
 
   .dash-card-icon { font-size: 22px; }
+
   .dash-card-title {
     font-family: 'Cinzel', serif;
     font-size: 13px;
     color: #d9a8a8;
     letter-spacing: 0.05em;
   }
-  .dash-card-desc { font-size: 12px; color: #7a6a6a; line-height: 1.5; }
+
+  .dash-card-desc {
+    font-size: 12px;
+    color: #7a6a6a;
+    line-height: 1.5;
+  }
+
   .dash-card.highlight {
     border-color: rgba(217,168,168,0.25);
     background: rgba(217,168,168,0.06);
   }
+
+  .notif-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c46060;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
 </style>
+
+{% unread_count user as notif_count %}
 
 <div class="dash-header">
   <h1>Welcome, {{ user.username }}</h1>
-  <p>Here's your player hub.</p>
+  <p>Here's your player hub. Jump to where you need to go.</p>
 </div>
 
 <div class="dash-grid">
-  <a href="{% url 'player_profile' %}" class="dash-card highlight">
-    <div class="dash-card-icon">⚙</div>
-    <div class="dash-card-title">My Profile</div>
-    <div class="dash-card-desc">Update your info and in-game role.</div>
+
+  <a href="{% url 'tournament_list' %}" class="dash-card highlight">
+    <div class="dash-card-icon">&#127942;</div>
+    <div class="dash-card-title">Tournaments</div>
+    <div class="dash-card-desc">Browse and apply to active tournaments.</div>
   </a>
+
   <a href="{% url 'browse_teams' %}" class="dash-card">
-    <div class="dash-card-icon">👥</div>
+    <div class="dash-card-icon">&#128100;</div>
     <div class="dash-card-title">Browse Teams</div>
-    <div class="dash-card-desc">Find open teams to join.</div>
+    <div class="dash-card-desc">Find open teams for Valorant or PUBG.</div>
   </a>
 
   <a href="{% url 'create_team' %}" class="dash-card">
-    <div class="dash-card-icon">➕</div>
+    <div class="dash-card-icon">&#43;</div>
     <div class="dash-card-title">Create Team</div>
     <div class="dash-card-desc">Start your own team as captain.</div>
   </a>
 
   <a href="{% url 'my_team' %}" class="dash-card">
-    <div class="dash-card-icon">🛡</div>
+    <div class="dash-card-icon">&#128737;</div>
     <div class="dash-card-title">My Team</div>
-    <div class="dash-card-desc">View and manage your team.</div>
+    <div class="dash-card-desc">View and manage your current teams.</div>
   </a>
 
   <a href="{% url 'my_invites' %}" class="dash-card">
-    <div class="dash-card-icon">📩</div>
+    <div class="dash-card-icon">&#128140;</div>
     <div class="dash-card-title">My Invites</div>
-    <div class="dash-card-desc">Accept or reject invitations.</div>
+    <div class="dash-card-desc">Accept or reject team invitations.</div>
   </a>
-</div>
 
+  {% if user.captained_teams.exists %}
+  <a href="{% url 'my_join_requests' %}" class="dash-card">
+    <div class="dash-card-icon">&#128203;</div>
+    <div class="dash-card-title">Join Requests</div>
+    <div class="dash-card-desc">Approve players requesting to join your team.</div>
+  </a>
+  {% endif %}
+
+  <a href="{% url 'notification_list' %}" class="dash-card">
+    <div class="dash-card-icon">
+      &#128276;
+      {% if notif_count > 0 %}<span class="notif-dot"></span>{% endif %}
+    </div>
+    <div class="dash-card-title">
+      Notifications
+      {% if notif_count > 0 %}({{ notif_count }}){% endif %}
+    </div>
+    <div class="dash-card-desc">Check your latest alerts and updates.</div>
+  </a>
+
+  <a href="{% url 'player_profile' %}" class="dash-card">
+    <div class="dash-card-icon">&#9881;</div>
+    <div class="dash-card-title">My Profile</div>
+    <div class="dash-card-desc">Update your info and in-game role.</div>
+  </a>
+
+</div>
 {% endblock %}
