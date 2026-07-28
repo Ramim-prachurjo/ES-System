@@ -1,0 +1,249 @@
+
+{% extends "base.html" %}
+{% block title %}{{ tournament.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* header */
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    color: #d9a8a8;
+  }
+
+  .pill {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-left: 10px;
+  }
+
+  .pill.pending   { background: rgba(204,170,68,0.15); color:#ccaa44; }
+  .pill.active    { background: rgba(80,160,220,0.15); color:#88aaee; }
+  .pill.ongoing   { background: rgba(100,200,180,0.15); color:#7ee8d0; }
+  .pill.completed { background: rgba(136,204,136,0.15); color:#88cc88; }
+  .pill.cancelled { background: rgba(220,80,80,0.15); color:#ff9999; }
+
+  /* card */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  /* grid info */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    font-size: 13px;
+  }
+
+  .info-item {
+    color: #a89a9a;
+  }
+
+  .info-item span {
+    display: block;
+    color: #e0cccc;
+    margin-top: 3px;
+  }
+
+  /* section title */
+  .section-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #d9a8a8;
+    letter-spacing: 0.05em;
+  }
+
+  /* apply button */
+  .apply-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid rgba(136,204,136,0.3);
+    background: rgba(136,204,136,0.1);
+    color: #88cc88;
+    transition: 0.2s;
+  }
+
+  .apply-btn:hover {
+    background: rgba(136,204,136,0.2);
+  }
+
+  /* table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 10px;
+    color: #6a5a5a;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .data-table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #d0c0c0;
+  }
+
+  .approve {
+    color: #88cc88;
+    text-decoration: none;
+  }
+
+  .reject {
+    color: #ff9999;
+    text-decoration: none;
+    margin-left: 8px;
+  }
+
+  .back-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 7px 18px;
+    border-radius: 6px;
+    background: rgba(40,120,160,0.5);
+    border: 1px solid rgba(60,160,200,0.4);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+  }
+</style>
+
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h2>
+      {{ tournament.name }}
+      <span class="pill {{ tournament.status }}">
+        {{ tournament.get_status_display }}
+      </span>
+    </h2>
+  </div>
+
+  <!-- INFO -->
+  <div class="card">
+    <div class="info-grid">
+      <div class="info-item">Game <span>{{ tournament.get_games_display }}</span></div>
+      <div class="info-item">Venue <span>{{ tournament.venue.name|default:"TBA" }}</span></div>
+      <div class="info-item">Dates <span>{{ tournament.start_date|date:"d M Y" }} → {{ tournament.end_date|date:"d M Y" }}</span></div>
+      <div class="info-item">Entry Fee <span>${{ tournament.entry_fee }}</span></div>
+      <div class="info-item">Prize Pool <span>${{ tournament.prize_pool }}</span></div>
+      <div class="info-item">Max Teams <span>{{ tournament.max_teams }}</span></div>
+    </div>
+  </div>
+
+  <!-- DESCRIPTION -->
+  {% if tournament.description %}
+  <div class="card">
+    <div class="section-title">Description</div>
+    <p>{{ tournament.description }}</p>
+  </div>
+  {% endif %}
+
+  <!-- RULES -->
+  {% if tournament.rules %}
+  <div class="card">
+    <div class="section-title">Rules</div>
+    <p>{{ tournament.rules }}</p>
+  </div>
+  {% endif %}
+
+  <!-- APPLY -->
+  {% if user.role == 'player' and tournament.status == 'active' %}
+  <div class="card">
+    <div class="section-title">Apply with your team</div>
+
+    {% if applicable_teams %}
+      {% for item in applicable_teams %}
+        <p style="margin-bottom:8px; display:flex; align-items:center; gap:12px;">
+          <span style="color:#e0cccc;">
+            {{ item.team.name }} ({{ item.team.get_game_display }})
+            — {{ item.current }}/{{ item.max }} members
+          </span>
+          {% if item.is_full %}
+            <a href="{% url 'apply_to_tournament' tournament.pk item.team.pk %}" class="apply-btn">
+              Apply
+            </a>
+          {% else %}
+            <span style="font-size:12px; padding:5px 12px; border-radius:6px;
+                         background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.25);
+                         color:#ff9999;">
+              ⚠ Incomplete — needs {{ item.max }} members
+            </span>
+          {% endif %}
+        </p>
+      {% endfor %}
+    {% else %}
+      <p style="color:#6a5a5a;">No eligible teams or already applied.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- APPLICATIONS -->
+  {% if user == tournament.organizer or user.role == 'admin' %}
+  <div class="card">
+    <div class="section-title">Applications</div>
+
+    {% if applications %}
+    <table class="data-table">
+      <tr>
+        <th>Team</th>
+        <th>Game</th>
+        <th>Applied</th>
+        <th>Status</th>
+        {% if user == tournament.organizer %}<th>Action</th>{% endif %}
+      </tr>
+
+      {% for app in applications %}
+      <tr>
+        <td>{{ app.team.name }}</td>
+        <td>{{ app.game|title }}</td>
+        <td>{{ app.applied_at|date:"d M Y" }}</td>
+        <td>{{ app.get_status_display }}</td>
+
+        {% if user == tournament.organizer and app.status == 'pending' %}
+        <td>
+          <a href="{% url 'approve_application' app.pk %}" class="approve">Approve</a>
+          <a href="{% url 'reject_application' app.pk %}" class="reject">Reject</a>
+        </td>
+        {% elif user == tournament.organizer %}
+        <td>{{ app.get_status_display }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+      <p style="color:#6a5a5a;">No applications yet.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <a href="{% url 'tournament_list' %}" class="back-btn">← Back</a>
+
+</div>
+
+{% endblock %}

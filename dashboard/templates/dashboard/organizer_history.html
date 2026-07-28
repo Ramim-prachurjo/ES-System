@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}My History{% endblock %}
+
+{% block content %}
+<style>
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    color: #d9a8a8;
+    letter-spacing: 0.06em;
+  }
+  .page-header p { color: #a89a9a; font-size: 14px; margin-top: 6px; }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 17px;
+    color: #d9a8a8;
+    margin: 36px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    letter-spacing: 0.05em;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .history-table th {
+    text-align: left;
+    padding: 10px 14px;
+    color: #7a6a6a;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.02);
+  }
+  .history-table td {
+    padding: 12px 14px;
+    color: #e0cccc;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* Status badges */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: capitalize;
+  }
+  .badge.pending   { background: rgba(255,200,80,0.15);  color: #ffd580; border: 1px solid rgba(255,200,80,0.3); }
+  .badge.confirmed { background: rgba(60,180,100,0.15);  color: #7ee8a2; border: 1px solid rgba(60,180,100,0.3); }
+  .badge.cancelled { background: rgba(150,150,150,0.12); color: #aaa;    border: 1px solid rgba(150,150,150,0.25); }
+  .badge.active    { background: rgba(100,180,255,0.15); color: #90caff; border: 1px solid rgba(100,180,255,0.3); }
+  .badge.ongoing   { background: rgba(180,100,255,0.15); color: #d4a0ff; border: 1px solid rgba(180,100,255,0.3); }
+  .badge.completed { background: rgba(60,180,100,0.15);  color: #7ee8a2; border: 1px solid rgba(60,180,100,0.3); }
+
+  /* Payment badge */
+  .pay-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .pay-badge.required   { background: rgba(255,100,100,0.15); color: #ff9999; border: 1px solid rgba(255,100,100,0.3); }
+  .pay-badge.confirmed  { background: rgba(60,180,100,0.15);  color: #7ee8a2; border: 1px solid rgba(60,180,100,0.3); }
+  .pay-badge.none       { background: rgba(255,255,255,0.05); color: #666;    border: 1px solid rgba(255,255,255,0.08); }
+
+  .empty-row td {
+    text-align: center;
+    color: #5a4a4a;
+    padding: 32px;
+    font-size: 14px;
+  }
+
+  .view-link {
+    color: #d9a8a8;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid rgba(217,168,168,0.25);
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .view-link:hover {
+    background: rgba(217,168,168,0.1);
+  }
+
+  .pay-link {
+    color: #7ec8e3;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid rgba(100,180,220,0.25);
+    border-radius: 6px;
+    margin-left: 6px;
+    transition: background 0.2s;
+  }
+  .pay-link:hover { background: rgba(100,180,220,0.1); }
+</style>
+
+<div class="page-header">
+  <h1>📋 My History</h1>
+  <p>All your venue bookings and tournaments — past and currently active.</p>
+</div>
+
+<!-- ── Venue Bookings ── -->
+<div class="section-title">🏟 Venue Bookings</div>
+
+<table class="history-table">
+  <thead>
+    <tr>
+      <th>Venue</th>
+      <th>City</th>
+      <th>Dates</th>
+      <th>Booking Status</th>
+      <th>Payment</th>
+      <th>Requested</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in venue_bookings %}
+    <tr>
+      <td>{{ booking.venue.name }}</td>
+      <td style="color:#a89a9a;">{{ booking.venue.city }}</td>
+      <td style="color:#a89a9a;">{{ booking.start_date }} → {{ booking.end_date }}</td>
+      <td><span class="badge {{ booking.status }}">{{ booking.get_status_display }}</span></td>
+      <td>
+        {% if booking.payment_required %}
+        
+          {% if booking.payment_confirmed %}
+            <span class="pay-badge confirmed">✓ Paid</span>
+          {% else %}
+            <span class="pay-badge required">⏳ Pending</span>
+          {% endif %}
+        {% else %}
+          <span class="pay-badge none">Not Required</span>
+        {% endif %}
+      </td>
+      <td style="color:#6a5a5a;">{{ booking.created_at|date:"M d, Y" }}</td>
+      <td>
+    {% if booking.payment_required %}
+        {% if booking.payment_confirmed %}
+            <a href="{% url 'venue_booking_payment' booking.pk %}" class="pay-link">🧾 View Slip</a>
+        {% else %}
+            <a href="{% url 'venue_booking_payment' booking.pk %}" class="pay-link">💳 View Slip</a>
+        {% endif %}
+    {% else %}
+        <span style="color:#4a3a3a; font-size:12px;">—</span>
+    {% endif %}
+</td>
+    </tr>
+    {% empty %}
+    <tr class="empty-row">
+      <td colspan="7">You have not made any venue bookings yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ── Tournaments ── -->
+<div class="section-title">🏆 Tournaments</div>
+
+<table class="history-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Games</th>
+      <th>Venue</th>
+      <th>Dates</th>
+      <th>Status</th>
+      <th>Venue Payment</th>
+      <th>Created</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tournaments %}
+    <tr>
+      <td>{{ t.name }}</td>
+      <td style="color:#a89a9a;">{{ t.get_games_display }}</td>
+      <td style="color:#a89a9a;">{{ t.venue.name|default:"TBA" }}</td>
+      <td style="color:#a89a9a;">{{ t.start_date }} → {{ t.end_date }}</td>
+      <td><span class="badge {{ t.status }}">{{ t.get_status_display }}</span></td>
+      <td>
+        {% if t.venue_payment_required %}
+          {% if t.venue_payment_confirmed %}
+            <span class="pay-badge confirmed">✓ Paid</span>
+          {% else %}
+            <span class="pay-badge required">⏳ Pending</span>
+          {% endif %}
+        {% else %}
+          <span class="pay-badge none">Not Required</span>
+        {% endif %}
+      </td>
+      <td style="color:#6a5a5a;">{{ t.created_at|date:"M d, Y" }}</td>
+      <td>
+    <a href="{% url 'tournament_detail' t.pk %}" class="view-link">View</a>
+    {% if t.venue_payment_required %}
+        <a href="{% url 'tournament_payment_info' t.pk %}" class="pay-link">🧾 Slip</a>
+    {% endif %}
+</td>
+    </tr>
+    {% empty %}
+    <tr class="empty-row">
+      <td colspan="8">You have not created any tournaments yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

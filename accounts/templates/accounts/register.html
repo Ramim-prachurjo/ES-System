@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register — Esports System</title>
+  <title>Register — MARKSMEN ES</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -80,19 +80,37 @@
     .brand {
       margin-bottom: 32px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .brand-icon {
-      font-size: 26px;
-      display: block;
-      margin-bottom: 8px;
+    .brand-logo-img {
+      height: 120px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 4px;
+      border-radius: 14px;
+      filter:
+        drop-shadow(0 8px 14px rgba(0,0,0,0.55))
+        drop-shadow(0 2px 4px rgba(155,229,100,0.15));
+      transition: transform 0.25s ease, filter 0.25s ease;
+    }
+    .brand-logo-img:hover {
+      transform: translateY(-2px);
+      filter:
+        drop-shadow(0 12px 20px rgba(0,0,0,0.6))
+        drop-shadow(0 3px 8px rgba(155,229,100,0.25));
     }
     .brand-name {
       font-family: 'Cinzel', serif;
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 700;
-      color: #c8a0a0;
-      letter-spacing: 0.18em;
+      color: #ffffff;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
+    }
+    .brand-name span {
+      color: #9be564;
     }
 
     /* ── Heading ── */
@@ -100,13 +118,13 @@
       font-family: 'Cinzel', serif;
       font-size: 20px;
       font-weight: 700;
-      color: #f5e8e8;
+      color: #eef5e6;
       text-align: center;
       margin-bottom: 6px;
     }
     .register-sub {
       font-size: 12px;
-      color: #7a6a6a;
+      color: #6a7a60;
       text-align: center;
       margin-bottom: 28px;
     }
@@ -121,7 +139,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      color: #8a7a7a;
+      color: #7a8a70;
       margin-bottom: 6px;
     }
 
@@ -134,7 +152,7 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.09);
       border-radius: 8px;
-      color: #f0e0e0;
+      color: #eef0e0;
       font-family: 'Raleway', sans-serif;
       font-size: 13px;
       outline: none;
@@ -143,10 +161,10 @@
     .field-group input[type="text"]:focus,
     .field-group input[type="email"]:focus,
     .field-group input[type="password"]:focus {
-      border-color: rgba(200,160,160,0.45);
+      border-color: rgba(155,229,100,0.45);
       background: rgba(255,255,255,0.07);
     }
-    .field-group input::placeholder { color: #4a3a3a; }
+    .field-group input::placeholder { color: #3a4a34; }
 
     /* ── Role radio pills ── */
     .role-row {
@@ -166,6 +184,11 @@
       padding: 0;
     }
 
+    .role-row ul li label,
+    .role-row ul li label * {
+      color: #ffffff !important;
+    }
+
     .role-row ul li label {
       display: inline-flex;
       align-items: center;
@@ -174,7 +197,6 @@
       font-weight: 500;
       text-transform: none;
       letter-spacing: 0;
-      color: #c8b8b8;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
@@ -182,23 +204,19 @@
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s, color 0.2s;
       user-select: none;
-      /* reset the generic label styles */
       margin-bottom: 0;
     }
 
     .role-row ul li label:hover {
-      background: rgba(200,160,160,0.1);
-      border-color: rgba(200,160,160,0.3);
-      color: #e0cccc;
+      background: rgba(155,229,100,0.1);
+      border-color: rgba(155,229,100,0.3);
     }
 
     .role-row ul li label.selected {
-      background: rgba(200,160,160,0.18);
-      border-color: rgba(200,160,160,0.5);
-      color: #d9a8a8;
+      background: rgba(155,229,100,0.18);
+      border-color: rgba(155,229,100,0.5);
     }
 
-    /* hide the actual radio input */
     .role-row ul li input[type="radio"] {
       display: none;
     }
@@ -206,7 +224,7 @@
     /* ── Help text ── */
     .field-help {
       font-size: 10px;
-      color: #5a5050;
+      color: #5a6050;
       margin-top: 4px;
       line-height: 1.5;
     }
@@ -235,8 +253,8 @@
       margin-top: 10px;
       border-radius: 8px;
       border: none;
-      background: linear-gradient(135deg, #c46060 0%, #8a3030 100%);
-      color: #fff;
+      background: linear-gradient(135deg, #9be564 0%, #4d8a1f 100%);
+      color: #0a0f08;
       font-family: 'Cinzel', serif;
       font-size: 13px;
       font-weight: 700;
@@ -253,10 +271,10 @@
       margin-top: 22px;
       text-align: center;
       font-size: 12px;
-      color: #6a5a5a;
+      color: #6a7a60;
     }
-    .login-link a { color: #c8a0a0; text-decoration: none; font-weight: 600; }
-    .login-link a:hover { color: #e0c0c0; }
+    .login-link a { color: #9be564; text-decoration: none; font-weight: 600; }
+    .login-link a:hover { color: #c2f099; }
 
     /* ── Tagline ── */
     .tagline {
@@ -284,8 +302,7 @@
   <div class="register-panel">
 
     <div class="brand">
-      <span class="brand-icon" style="color: #e63946;">&#9876;</span>
-      <span class="brand-name">Esports System</span>
+      <img class="brand-logo-img" src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN ES logo">
     </div>
 
     <h1 class="register-heading">Create Account</h1>
@@ -339,16 +356,10 @@
 
   <script>
   (function () {
-    // find all radio inputs inside the role-row
     var roleInputs = document.querySelectorAll('.role-row input[type="radio"]');
 
     function updatePills() {
       roleInputs.forEach(function (input) {
-        var label = input.closest('label') || input.parentElement.querySelector('label');
-
-        // Django RadioSelect wraps each option as:
-        // <li><label><input type="radio"> Text</label></li>
-        // so the label IS the parent of the input
         var lbl = input.parentElement;
         if (input.checked) {
           lbl.classList.add('selected');
@@ -358,10 +369,8 @@
       });
     }
 
-    // highlight on page load (e.g. validation fail re-render)
     updatePills();
 
-    // highlight on click
     roleInputs.forEach(function (input) {
       input.addEventListener('change', updatePills);
     });
@@ -370,4 +379,3 @@
 
 </body>
 </html>
-

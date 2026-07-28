@@ -1,0 +1,185 @@
+
+{% extends "base.html" %}
+{% block title %}Complete Your Venue Payment{% endblock %}
+
+{% block content %}
+<style>
+  .payment-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .payment-wrap h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    color: #d9a8a8;
+    margin-bottom: 8px;
+  }
+
+  .payment-wrap p {
+    color: #a89a9a;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* TABLE */
+  .payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  .payment-table th {
+    text-align: left;
+    padding: 14px 18px;
+
+    /* 🔥 GLASS LEFT COLUMN */
+    background: linear-gradient(
+      to right,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.02)
+    );
+
+    color: #a89a9a;
+    font-weight: 600;
+    width: 42%;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .payment-table td {
+    padding: 14px 18px;
+    color: #e0cccc;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* SPECIAL TEXT */
+  .amount-highlight {
+    color: #ff9999;
+    font-weight: 700;
+  }
+
+  .payment-code {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #7ec8e3;
+    letter-spacing: 4px;
+    font-family: 'Cinzel', serif;
+  }
+
+  /* INFO BOX (BLUE) */
+  .info-box {
+    padding: 18px 22px;
+    border-radius: 14px;
+    margin: 20px 0;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .info-box.blue {
+    background: rgba(100, 180, 220, 0.08);
+    border: 1px solid rgba(100, 180, 220, 0.35);
+    color: #a8d8ea;
+  }
+
+  .info-box.blue strong {
+    color: #e6f6ff;
+  }
+
+  .info-box ol {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+  }
+
+  /* WARNING BOX */
+  .info-box.yellow {
+    background: rgba(255, 200, 80, 0.08);
+    border: 1px solid rgba(255, 200, 80, 0.35);
+    color: #ffd580;
+  }
+
+  /* BUTTON */
+  .btn-back {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 11px 26px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c46060, #a04040);
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .btn-back:hover {
+    background: linear-gradient(135deg, #d47070, #b05050);
+  }
+</style>
+
+<div class="payment-wrap">
+
+  <h2>💳 Venue Booking Payment Required</h2>
+
+  <p>
+    Your tournament <strong style="color:#e0cccc;">{{ tournament.name }}</strong>
+    has been submitted for admin approval.
+    To confirm your venue at
+    <strong style="color:#e0cccc;">{{ tournament.venue.name }}</strong>,
+    please pay below.
+  </p>
+
+  <table class="payment-table">
+    <tr>
+      <th>Amount</th>
+      <td>
+        <span class="amount-highlight">
+          ৳{{ tournament.venue_payment_amount }} BDT
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>Payment Method</th>
+      <td>bKash Mobile Banking</td>
+    </tr>
+    <tr>
+      <th>Biller ID</th>
+      <td><strong style="color:#fff;">210425</strong></td>
+    </tr>
+    <tr>
+      <th>Your Payment Code</th>
+      <td>
+        <span class="payment-code">
+          {{ tournament.venue_payment_code }}
+        </span>
+      </td>
+    </tr>
+  </table>
+
+  <div class="info-box blue">
+    <strong>📱 How to pay via bKash:</strong>
+    <ol>
+      <li>Open your bKash app</li>
+      <li>Tap <strong>Pay Bill</strong></li>
+      <li>Enter Biller ID: <strong>210425</strong></li>
+      <li>Enter your code: <strong>{{ tournament.venue_payment_code }}</strong></li>
+      <li>Enter amount: <strong>৳{{ tournament.venue_payment_amount }}</strong></li>
+      <li>Confirm the payment</li>
+    </ol>
+  </div>
+
+  <div class="info-box yellow">
+    ⚠️ Your venue booking will only be confirmed <strong>after</strong> the admin verifies your payment.
+    Please keep your payment code safe.
+  </div>
+
+  <a href="{% url 'tournament_detail' tournament.pk %}" class="btn-back">
+    ← View My Tournament
+  </a>
+
+</div>
+
+{% endblock %}
+
+
+

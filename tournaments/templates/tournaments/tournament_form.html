@@ -74,3 +74,68 @@
     border: 1px solid rgba(40, 180, 100, 0.4);
     color: #7ee8a2;
   }
+</style>
+
+<div class="form-wrap">
+  <div class="form-card">
+
+    <h2>🏆 {{ title }}</h2>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div id="payment-notice"></div>
+
+      <button type="submit" class="btn-submit">
+        Submit for Approval
+      </button>
+    </form>
+
+  </div>
+
+  <a href="{% url 'tournament_list' %}" class="btn-back">← Back</a>
+</div>
+
+<script>
+const venuePaymentData = {
+  {% for venue in form.fields.venue.queryset %}
+  "{{ venue.pk }}": {
+    name: "{{ venue.name }}",
+    requiresPayment: {{ venue.requires_payment|yesno:"true,false" }},
+    amount: {{ venue.payment_amount }}
+  },
+  {% endfor %}
+};
+
+const venueSelect = document.getElementById('id_venue');
+const notice      = document.getElementById('payment-notice');
+
+function updatePaymentNotice() {
+  const selected = venuePaymentData[venueSelect.value];
+  if (!selected) { notice.innerHTML = ''; return; }
+
+  if (selected.requiresPayment) {
+    notice.innerHTML = `
+      <div class="notice warn">
+        💳 <strong>${selected.name}</strong> requires a fee of
+        <strong>৳${selected.amount} BDT</strong> (bKash).
+        Payment code will be generated after submission.
+      </div>`;
+  } else {
+    notice.innerHTML = `
+      <div class="notice success">
+        ✅ <strong>${selected.name}</strong> — No payment required.
+      </div>`;
+  }
+}
+
+venueSelect.addEventListener('change', updatePaymentNotice);
+updatePaymentNotice();
+</script>
+
+{% endblock %}
+
+
+
+

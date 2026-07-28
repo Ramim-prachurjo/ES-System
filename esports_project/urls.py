@@ -9,5 +9,6 @@ urlpatterns = [
     path('teams/',          include('teams.urls')),
     path('notifications/',  include('notifications.urls')),
     path('', lambda request: redirect('login')),
+    
 ]
 

@@ -1,159 +1,331 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
+
 <style>
-  .dash-heading {
-    font-family: 'Cinzel', serif;
-    color: #d9a8a8;
-    font-size: 22px;
-    margin-bottom: 24px;
-    letter-spacing: 0.08em;
+  /* ── layout wrapper ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
   }
 
+  .section.full {
+    grid-column: span 2;
+  }
+
+  /* ── header ── */
+  .dash-header { margin-bottom: 28px; }
+  .dash-header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    color: #d9a8a8;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── cards ── */
+  .section {
+    background: rgba(255,255,255,0.035);
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+
+  /* ── titles ── */
   .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .pending { color: #ccaa44; }
+  .confirmed { color: #88cc88; }
+
+  .count-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── tables ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #a89a9a;
-    margin-bottom: 12px;
-    padding-bottom: 6px;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 10px;
+    font-size: 11px;
+    color: #6a5a5a;
     border-bottom: 1px solid rgba(255,255,255,0.07);
   }
 
-  .dash-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 36px;
-    font-size: 13px;
-  }
-
-  .dash-table th {
-    text-align: left;
-    padding: 10px 14px;
-    background: rgba(255,255,255,0.04);
-    color: #a89a9a;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-size: 11px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .dash-table td {
-    padding: 10px 14px;
+  .data-table td {
+    padding: 10px;
+    color: #d0c0c0;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: #e0d0d0;
   }
 
-  .dash-table tr:hover td {
+  .data-table tr {
+    transition: background 0.15s ease;
+  }
+
+  .data-table tr:hover {
     background: rgba(255,255,255,0.03);
   }
 
-  .dash-table td:first-child {
-    color: #d9a8a8;
-    font-weight: 500;
+  /* sticky header */
+  .data-table thead {
+    position: sticky;
+    top: 0;
+    background: rgba(10,14,14,0.95);
   }
 
-  .empty-row td {
+  /* ── buttons ── */
+  .act-approve {
+    color: #88cc88;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(136,204,136,0.25);
+    background: rgba(136,204,136,0.08);
+    text-decoration: none;
+  }
+
+  .act-reject {
+    color: #ff9999;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(220,80,80,0.25);
+    background: rgba(220,80,80,0.08);
+    text-decoration: none;
+    margin-left: 6px;
+  }
+
+  /* ── status ── */
+  .pill {
+    font-size: 10px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .pill.confirmed {
+    background: rgba(136,204,136,0.15);
+    color: #88cc88;
+  }
+
+  /* ── empty ── */
+  .empty-note {
+    font-size: 13px;
     color: #5a4a4a;
-    font-style: italic;
-  }
-
-  .stat-cards {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-  }
-
-  .stat-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 20px 28px;
-    min-width: 140px;
-  }
-
-  .stat-card .stat-num {
-    font-family: 'Cinzel', serif;
-    font-size: 28px;
-    color: #d9a8a8;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .stat-card .stat-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #6a5a5a;
+    padding: 12px 0;
   }
 </style>
 
-<div class="dash-heading">⚔ Admin Dashboard</div>
-
-<!-- Stat Cards -->
-<div class="stat-cards">
-  <div class="stat-card">
-    <div class="stat-num">{{ players.count }}</div>
-    <div class="stat-label">Players</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num">{{ organizers.count }}</div>
-    <div class="stat-label">Organizers</div>
-  </div>
+<div class="dash-header">
+  <h1>Admin Dashboard</h1>
 </div>
 
-<!-- Players Table -->
-<div class="section-title">🎮 Players</div>
-<table class="dash-table">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>First Name</th>
-      <th>Last Name</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for p in players %}
-    <tr>
-      <td>{{ p.username }}</td>
-      <td>{{ p.email }}</td>
-      <td>{{ p.first_name }}</td>
-      <td>{{ p.last_name }}</td>
-    </tr>
-    {% empty %}
-    <tr class="empty-row"><td colspan="4">No players registered yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% if player_query %}
+<div class="section full" style="margin-bottom: 20px;">
+  <div class="section-title">
+    🎮 Players for "<strong>{{ player_query }}</strong>"
+  </div>
 
-<!-- Organizers Table -->
-<div class="section-title">🏢 Organizers</div>
-<table class="dash-table">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>First Name</th>
-      <th>Last Name</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for o in organizers %}
-    <tr>
-      <td>{{ o.username }}</td>
-      <td>{{ o.email }}</td>
-      <td>{{ o.first_name }}</td>
-      <td>{{ o.last_name }}</td>
-    </tr>
-    {% empty %}
-    <tr class="empty-row"><td colspan="4">No organizers registered yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  {% if players %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in players %}
+      <tr>
+        <td>{{ p.username }}</td>
+        <td>{{ p.first_name|default:"—" }}</td>
+        <td>{{ p.last_name|default:"—" }}</td>
+        <td>{{ p.email|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty-note">No players found.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if player_query %}
+<div class="section full" style="margin-bottom: 20px;">
+  <div class="section-title">
+    🎮 Players for "<strong>{{ player_query }}</strong>"
+  </div>
+
+  {% if players %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in players %}
+      <tr>
+        <td>{{ p.username }}</td>
+        <td>{{ p.first_name|default:"—" }}</td>
+        <td>{{ p.last_name|default:"—" }}</td>
+        <td>{{ p.email|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty-note">No players found.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+
+
+<div class="dashboard-grid">
+
+  <!-- Pending Bookings -->
+  <div class="section">
+    <div class="section-title pending">
+      Pending Bookings
+      <span class="count-badge">{{ pending_bookings|length }}</span>
+    </div>
+
+    {% if pending_bookings %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Venue</th>
+          <th>Organizer</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in pending_bookings %}
+        <tr>
+          <td>{{ b.venue.name }}</td>
+          <td>{{ b.booked_by.username }}</td>
+          <td>{{ b.start_date }}</td>
+          <td>{{ b.end_date }}</td>
+          <td>
+            <a href="{% url 'approve_booking' b.pk %}" class="act-approve">✔</a>
+            <a href="{% url 'reject_booking' b.pk %}" class="act-reject">✖</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No pending bookings</p>
+    {% endif %}
+  </div>
+
+  <!-- Confirmed Bookings -->
+  <div class="section">
+    <div class="section-title confirmed">
+      Confirmed Bookings
+      <span class="count-badge">{{ confirmed_bookings|length }}</span>
+    </div>
+
+    {% if confirmed_bookings %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Venue</th>
+          <th>Organizer</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in confirmed_bookings %}
+        <tr>
+          <td>{{ b.venue.name }}</td>
+          <td>{{ b.booked_by.username }}</td>
+          <td>{{ b.start_date }}</td>
+          <td>{{ b.end_date }}</td>
+          <td><span class="pill confirmed">Confirmed</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No confirmed bookings</p>
+    {% endif %}
+  </div>
+
+  <!-- Pending Tournaments (FULL WIDTH) -->
+  <div class="section full">
+    <div class="section-title pending">
+      Pending Tournaments
+      <span class="count-badge">{{ pending_tournaments|length }}</span>
+    </div>
+
+    {% if pending_tournaments %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Organizer</th>
+          <th>Games</th>
+          <th>Venue</th>
+          <th>Dates</th>
+          <th>Prize</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in pending_tournaments %}
+        <tr>
+          <td>{{ t.name }}</td>
+          <td>{{ t.organizer.username }}</td>
+          <td>{{ t.get_games_display }}</td>
+          <td>{{ t.venue.name }}</td>
+          <td>{{ t.start_date }} → {{ t.end_date }}</td>
+          <td>${{ t.prize_pool }}</td>
+          <td>
+            <a href="{% url 'approve_tournament' t.pk %}" class="act-approve">✔</a>
+            <a href="{% url 'reject_tournament' t.pk %}" class="act-reject">✖</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No pending tournaments</p>
+    {% endif %}
+  </div>
+
+</div>
 
 {% endblock %}

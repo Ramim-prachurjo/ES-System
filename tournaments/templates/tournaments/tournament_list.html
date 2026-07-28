@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Tournaments{% endblock %}
+
+{% block content %}
+
+<style>
+  .page-header {
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .page-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    color: #d9a8a8;
+  }
+
+  .btn-create {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-decoration: none;
+    background: rgba(217,168,168,0.12);
+    border: 1px solid rgba(217,168,168,0.3);
+    color: #d9a8a8;
+    transition: 0.2s;
+  }
+
+  .btn-create:hover {
+    background: rgba(217,168,168,0.22);
+  }
+
+  /* table style (copied + adapted from admin dashboard) */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6a5a5a;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .data-table td {
+    padding: 12px 14px;
+    color: #d0c0c0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* status pills */
+  .pill {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .pill.pending   { background: rgba(204,170,68,0.15);  color: #ccaa44; }
+  .pill.active    { background: rgba(80,160,220,0.15);  color: #88aaee; }
+  .pill.ongoing   { background: rgba(100,200,180,0.15); color: #7ee8d0; }
+  .pill.completed { background: rgba(136,204,136,0.15); color: #88cc88; }
+  .pill.cancelled { background: rgba(220,80,80,0.15);  color: #ff9999; }
+
+  .view-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid rgba(217,168,168,0.25);
+    background: rgba(217,168,168,0.08);
+    color: #d9a8a8;
+    transition: 0.2s;
+  }
+
+  .view-btn:hover {
+    background: rgba(217,168,168,0.18);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 30px;
+    color: #6a5a5a;
+    font-size: 13px;
+  }
+</style>
+
+
+<div class="page-header">
+  <h2>🎮 Tournaments</h2>
+
+  {% if user.role == 'organizer' %}
+    <a href="{% url 'create_tournament' %}" class="btn-create">
+      + Create Tournament
+    </a>
+  {% endif %}
+</div>
+
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Game</th>
+      <th>Venue</th>
+      <th>Dates</th>
+      <th>Prize</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for t in tournaments %}
+    <tr>
+      <td><strong style="color:#e0cccc;">{{ t.name }}</strong></td>
+      <td>{{ t.get_games_display }}</td>
+      <td>{{ t.venue.name|default:"TBA" }}</td>
+      <td>{{ t.start_date|date:"d M Y" }} → {{ t.end_date|date:"d M Y" }}</td>
+      <td>${{ t.prize_pool }}</td>
+
+      <td>
+        <span class="pill {{ t.status }}">
+          {{ t.get_status_display }}
+        </span>
+      </td>
+
+      <td>
+        <a href="{% url 'tournament_detail' t.pk %}" class="view-btn">
+          View
+        </a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="empty">
+        No tournaments available yet.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+
+
+
