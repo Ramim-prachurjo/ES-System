@@ -51,3 +51,43 @@
     border-radius: 10px;
   }
 </style>
+
+<div class="venue-wrap">
+  <h2 style="margin-bottom: 20px;">🏟️ Venues</h2>
+
+  {% for item in venue_data %}
+    <div class="venue-card">
+
+      <div class="venue-title">
+        {{ item.venue.name }}
+      </div>
+
+      <div class="venue-meta">
+        📍 {{ item.venue.city }} | 👥 Capacity: {{ item.venue.capacity }}
+      </div>
+
+      {% if user.role == 'organizer' %}
+        <a href="{% url 'request_booking' item.venue.pk %}" class="btn-book">
+          + Request Booking
+        </a>
+      {% endif %}
+
+      <div class="calendar-box">
+        <div id="calendar-{{ item.venue.pk }}"></div>
+      </div>
+
+      <script>
+        renderCalendar(
+          "calendar-{{ item.venue.pk }}",
+          "{{ item.bookings|safe }}"
+        );
+      </script>
+
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+
+
