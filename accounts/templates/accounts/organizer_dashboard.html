@@ -38,14 +38,21 @@
     transform: translateY(-2px);
   }
 
-  .dash-card-icon { font-size: 22px; }
+  .dash-card-icon  { font-size: 22px; }
+
   .dash-card-title {
     font-family: 'Cinzel', serif;
     font-size: 13px;
     color: #d9a8a8;
     letter-spacing: 0.05em;
   }
-  .dash-card-desc { font-size: 12px; color: #7a6a6a; line-height: 1.5; }
+
+  .dash-card-desc {
+    font-size: 12px;
+    color: #7a6a6a;
+    line-height: 1.5;
+  }
+
   .dash-card.highlight {
     border-color: rgba(217,168,168,0.25);
     background: rgba(217,168,168,0.06);
@@ -54,15 +61,40 @@
 
 <div class="dash-header">
   <h1>Welcome, {{ user.username }}</h1>
-  <p>Organizer hub — manage your profile.</p>
+  <p>Organizer hub — manage your tournaments and venues.</p>
 </div>
 
 <div class="dash-grid">
-  <a href="{% url 'organizer_profile' %}" class="dash-card highlight">
-    <div class="dash-card-icon">⚙</div>
+
+  <a href="{% url 'create_tournament' %}" class="dash-card highlight">
+    <div class="dash-card-icon">&#43;</div>
+    <div class="dash-card-title">New Tournament</div>
+    <div class="dash-card-desc">Create a new tournament for approval.</div>
+  </a>
+
+  <a href="{% url 'tournament_list' %}" class="dash-card">
+    <div class="dash-card-icon">&#127942;</div>
+    <div class="dash-card-title">My Tournaments</div>
+    <div class="dash-card-desc">View and manage your tournaments.</div>
+  </a>
+
+  <a href="{% url 'venue_list' %}" class="dash-card">
+    <div class="dash-card-icon">&#127968;</div>
+    <div class="dash-card-title">Venues</div>
+    <div class="dash-card-desc">Browse venues and request a booking.</div>
+  </a>
+
+  <a href="{% url 'team_list' %}" class="dash-card">
+    <div class="dash-card-icon">&#128100;</div>
+    <div class="dash-card-title">All Teams</div>
+    <div class="dash-card-desc">See all registered teams.</div>
+  </a>
+
+  <a href="{% url 'organizer_profile' %}" class="dash-card">
+    <div class="dash-card-icon">&#9881;</div>
     <div class="dash-card-title">My Profile</div>
     <div class="dash-card-desc">Update your contact information.</div>
   </a>
-</div>
 
+</div>
 {% endblock %}
