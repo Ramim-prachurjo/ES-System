@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'accounts',
     'dashboard',
     'teams',
+    'tournaments',
+    'venues',
     'notifications',
-    
-    
 
 
 
