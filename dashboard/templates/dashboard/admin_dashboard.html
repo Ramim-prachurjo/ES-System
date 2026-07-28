@@ -209,3 +209,123 @@
 
 
 
+<div class="dashboard-grid">
+
+  <!-- Pending Bookings -->
+  <div class="section">
+    <div class="section-title pending">
+      Pending Bookings
+      <span class="count-badge">{{ pending_bookings|length }}</span>
+    </div>
+
+    {% if pending_bookings %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Venue</th>
+          <th>Organizer</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in pending_bookings %}
+        <tr>
+          <td>{{ b.venue.name }}</td>
+          <td>{{ b.booked_by.username }}</td>
+          <td>{{ b.start_date }}</td>
+          <td>{{ b.end_date }}</td>
+          <td>
+            <a href="{% url 'approve_booking' b.pk %}" class="act-approve">✔</a>
+            <a href="{% url 'reject_booking' b.pk %}" class="act-reject">✖</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No pending bookings</p>
+    {% endif %}
+  </div>
+
+  <!-- Confirmed Bookings -->
+  <div class="section">
+    <div class="section-title confirmed">
+      Confirmed Bookings
+      <span class="count-badge">{{ confirmed_bookings|length }}</span>
+    </div>
+
+    {% if confirmed_bookings %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Venue</th>
+          <th>Organizer</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in confirmed_bookings %}
+        <tr>
+          <td>{{ b.venue.name }}</td>
+          <td>{{ b.booked_by.username }}</td>
+          <td>{{ b.start_date }}</td>
+          <td>{{ b.end_date }}</td>
+          <td><span class="pill confirmed">Confirmed</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No confirmed bookings</p>
+    {% endif %}
+  </div>
+
+  <!-- Pending Tournaments (FULL WIDTH) -->
+  <div class="section full">
+    <div class="section-title pending">
+      Pending Tournaments
+      <span class="count-badge">{{ pending_tournaments|length }}</span>
+    </div>
+
+    {% if pending_tournaments %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Organizer</th>
+          <th>Games</th>
+          <th>Venue</th>
+          <th>Dates</th>
+          <th>Prize</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in pending_tournaments %}
+        <tr>
+          <td>{{ t.name }}</td>
+          <td>{{ t.organizer.username }}</td>
+          <td>{{ t.get_games_display }}</td>
+          <td>{{ t.venue.name }}</td>
+          <td>{{ t.start_date }} → {{ t.end_date }}</td>
+          <td>${{ t.prize_pool }}</td>
+          <td>
+            <a href="{% url 'approve_tournament' t.pk %}" class="act-approve">✔</a>
+            <a href="{% url 'reject_tournament' t.pk %}" class="act-reject">✖</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-note">No pending tournaments</p>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}
