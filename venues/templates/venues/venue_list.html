@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Venues{% endblock %}
+
+{% block content %}
+<style>
+  .venue-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .venue-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .venue-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #d9a8a8;
+    margin-bottom: 6px;
+  }
+
+  .venue-meta {
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 12px;
+  }
+
+  .btn-book {
+    display: inline-block;
+    padding: 6px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    background: rgba(40,120,160,0.6);
+    border: 1px solid rgba(60,160,200,0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-book:hover {
+    opacity: 0.85;
+  }
+
+  .calendar-box {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
+</style>
+
+<div class="venue-wrap">
+  <h2 style="margin-bottom: 20px;">🏟️ Venues</h2>
+
+  {% for item in venue_data %}
+    <div class="venue-card">
+
+      <div class="venue-title">
+        {{ item.venue.name }}
+      </div>
+
+      <div class="venue-meta">
+        📍 {{ item.venue.city }} | 👥 Capacity: {{ item.venue.capacity }}
+      </div>
+
+      {% if user.role == 'organizer' %}
+        <a href="{% url 'request_booking' item.venue.pk %}" class="btn-book">
+          + Request Booking
+        </a>
+      {% endif %}
+
+      <div class="calendar-box">
+        <div id="calendar-{{ item.venue.pk }}"></div>
+      </div>
+
+      <script>
+        renderCalendar(
+          "calendar-{{ item.venue.pk }}",
+          "{{ item.bookings|safe }}"
+        );
+      </script>
+
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

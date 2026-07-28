@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Venue Booking Payment{% endblock %}
+
+{% block content %}
+<style>
+  .payment-wrap {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .payment-wrap h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    color: #d9a8a8;
+    margin-bottom: 8px;
+  }
+  .payment-wrap p {
+    color: #a89a9a;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .payment-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    color: #a89a9a;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    width: 40%;
+  }
+  .payment-table td {
+    padding: 12px 16px;
+    color: #e0cccc;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .payment-code {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #7ec8e3;
+    letter-spacing: 3px;
+    font-family: 'Cinzel', serif;
+  }
+  .amount-highlight {
+    color: #ff9999;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+
+  .info-box {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .info-box.blue {
+    background: rgba(100, 180, 220, 0.1);
+    border: 1px solid rgba(100, 180, 220, 0.25);
+    color: #a8d8ea;
+  }
+  .info-box.yellow {
+    background: rgba(255, 200, 80, 0.1);
+    border: 1px solid rgba(255, 200, 80, 0.25);
+    color: #ffd580;
+  }
+  .info-box ol {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+  .info-box strong { color: #fff; }
+
+  .btn-back {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #c46060, #a04040);
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-back:hover { background: linear-gradient(135deg, #d47070, #b05050); }
+</style>
+
+<div class="payment-wrap">
+
+  <h2>💳 Venue Booking Payment Required</h2>
+  <p>
+    Your booking for <strong style="color:#e0cccc;">{{ booking.venue.name }}</strong>
+    has been submitted. To confirm your reservation, complete the bKash payment below.
+  </p>
+
+  <table class="payment-table">
+    <tr>
+      <th>Venue</th>
+      <td>{{ booking.venue.name }}, {{ booking.venue.city }}</td>
+    </tr>
+    <tr>
+      <th>Booking Dates</th>
+      <td>{{ booking.start_date }} → {{ booking.end_date }}</td>
+    </tr>
+    <tr>
+      <th>Amount</th>
+      <td><span class="amount-highlight">৳{{ booking.payment_amount }} BDT</span></td>
+    </tr>
+    <tr>
+      <th>Payment Method</th>
+      <td>bKash Mobile Banking</td>
+    </tr>
+    <tr>
+      <th>Biller ID</th>
+      <td><strong style="color:#fff; font-size:1.1em;">210425</strong></td>
+    </tr>
+    <tr>
+      <th>Your Payment Code</th>
+      <td><span class="payment-code">{{ booking.payment_code }}</span></td>
+    </tr>
+  </table>
+
+  <div class="info-box blue">
+    <strong>📱 How to pay via bKash:</strong>
+    <ol>
+      <li>Open your bKash app</li>
+      <li>Tap <strong>Pay Bill</strong></li>
+      <li>Enter Biller ID: <strong>210425</strong></li>
+      <li>Enter your code: <strong>{{ booking.payment_code }}</strong></li>
+      <li>Enter amount: <strong>৳{{ booking.payment_amount }}</strong></li>
+      <li>Confirm the payment</li>
+    </ol>
+  </div>
+
+  <div class="info-box yellow">
+    ⚠️ Your venue booking will only be confirmed <strong>after</strong> the admin
+    verifies your payment. Please keep your payment code safe.
+  </div>
+
+  <a href="{% url 'venue_list' %}" class="btn-back">← Back to Venues</a>
+
+</div>
+{% endblock %}
