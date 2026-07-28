@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Venues{% endblock %}
+
+{% block content %}
+<style>
+  .venue-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .venue-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .venue-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #d9a8a8;
+    margin-bottom: 6px;
+  }
+
+  .venue-meta {
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 12px;
+  }
+
+  .btn-book {
+    display: inline-block;
+    padding: 6px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    background: rgba(40,120,160,0.6);
+    border: 1px solid rgba(60,160,200,0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-book:hover {
+    opacity: 0.85;
+  }
+
+  .calendar-box {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
+</style>
