@@ -108,45 +108,45 @@ def organizer_profile(request):
         form = OrganizerProfileForm(instance=request.user)
 
     return render(request, 'accounts/organizer_profile.html', {'form': form})
+@login_required
+def view_player_profile(request, user_id):
+    from .models import PlayerProfile
+    target_user = get_object_or_404(
+        __import__('django.contrib.auth', fromlist=['get_user_model']).get_user_model(),
+        pk=user_id,
+        role='player'
+    )
+    profile = PlayerProfile.objects.filter(user=target_user).first()
+    return render(request, 'accounts/view_player_profile.html', {
+        'target_user': target_user,
+        'profile': profile,
+    })
 
-# @login_required
-#def view_player_profile(request, user_id):
-    #from .models import PlayerProfile
-    #target_user = get_object_or_404(
-     #   __import__('django.contrib.auth', fromlist=['get_user_model']).get_user_model(),
-      #  pk=user_id,
-       # role='player'
-    #)
-    #profile = PlayerProfile.objects.filter(user=target_user).first()
-    #return render(request, 'accounts/view_player_profile.html', {
-     #   'target_user': target_user,
-      #  'profile': profile,
-    #})  */
 
+@login_required
+def search_players(request):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    query = request.GET.get('q', '').strip()
+    players = []
+    if query:
+        players = User.objects.filter(
+            username__icontains=query,
+            role='player'
+        ).select_related('player_profile')
+    return render(request, 'accounts/search_players.html', {
+        'players': players,
+        'query': query,
+    })
 
-#@login_required
-#def search_players(request):
- #   from django.contrib.auth import get_user_model
-  #  User = get_user_model()
-   # query = request.GET.get('q', '').strip()
-    #players = []
-    #if query:
-     #   players = User.objects.filter(
-      #      username__icontains=query,
-       #     role='player'
-        #).select_related('player_profile')
-   # return render(request, 'accounts/search_players.html', {
-    #    'players': players,
-     #   'query': query,
- #   })
-
-#@login_required
-#def view_organizer_profile(request, user_id):
- #   user = get_object_or_404(CustomUser, id=user_id, role='organizer')
-#    return render(request, 'accounts/view_organizer_profile.html', {'user_obj': user})
+@login_required
+def view_organizer_profile(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id, role='organizer')
+    return render(request, 'accounts/view_organizer_profile.html', {'user_obj': user})
 
 @login_required
 def change_password(request):
+    form = PasswordChangeForm(user=request.user)
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
@@ -154,6 +154,7 @@ def change_password(request):
             # keeps the user logged in after password change
             update_session_auth_hash(request, form.user)
             messages.success(request, "Password changed successfully.")
+            return redirect('change_password')
         else:
             # pass errors back — the profile template will show them
             for field, errors in form.errors.items():
@@ -161,6 +162,4 @@ def change_password(request):
                     messages.error(request, error)
 
     # always redirect back to the correct profile page
-    if request.user.role == 'organizer':
-        return redirect('organizer_profile')
-    return redirect('player_profile')
+    return render(request, 'accounts/change_password.html', {'form': form})

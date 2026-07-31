@@ -43,12 +43,18 @@
     }
 
     .nav-brand {
-      font-family: 'Cinzel', serif;
-      font-size: 15px;
-      font-weight: 700;
-      color: #d9a8a8;
-      letter-spacing: 0.08em;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      height: 42px;
+    }
+
+    .nav-brand img {
+      width: auto;
+      height: 42px;
+      object-fit: cover;
+      object-position: 50% 26%;
+      display: block;
     }
 
     .nav-links {
@@ -73,14 +79,46 @@
       color: #e8d0d0;
     }
 
+    .nav-links a.active {
+      position: relative;
+      color: #ffffff;
+      background: rgba(168, 112, 255, .16);
+      border-color: rgba(187, 145, 255, .58);
+      box-shadow: 0 0 10px rgba(156, 98, 255, .42), inset 0 0 12px rgba(164, 106, 255, .1);
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      right: 11px;
+      bottom: 3px;
+      left: 11px;
+      height: 1px;
+      background: #d9c4ff;
+      box-shadow: 0 0 7px #c195ff;
+    }
+
     .nav-right {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .nav-username { font-size: 12px; color: #a89a9a; }
-    .nav-username strong { color: #fff; }
+    .profile-menu { position: relative; }
+    .profile-menu summary { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; background: linear-gradient(135deg, rgba(159,104,255,.38), rgba(47,35,99,.55)); color: #f6f0ff; cursor: pointer; list-style: none; transition: border-color .18s, box-shadow .18s, transform .18s; }
+    .profile-menu summary::-webkit-details-marker { display: none; }
+    .profile-menu summary:hover, .profile-menu[open] summary { border-color: rgba(199,167,255,.7); box-shadow: 0 0 16px rgba(144,88,255,.34); transform: translateY(-1px); }
+    .profile-menu summary svg { width: 19px; height: 19px; fill: currentColor; }
+    .profile-dropdown { position: absolute; top: calc(100% + 11px); right: 0; z-index: 200; width: 210px; overflow: hidden; padding: 8px; border: 1px solid rgba(205,181,255,.23); border-radius: 13px; background: rgba(19, 17, 38, .97); box-shadow: 0 18px 38px rgba(0,0,0,.38); backdrop-filter: blur(14px); }
+    .profile-menu:not([open]) .profile-dropdown { display: none; }
+    .profile-menu-head { padding: 9px 10px 11px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .profile-menu-head strong { display: block; overflow: hidden; color: #fff; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-menu-head span { color: #a99fbd; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+    .profile-dropdown a { display: flex; align-items: center; gap: 9px; margin-top: 3px; padding: 9px 10px; border-radius: 8px; color: #d7d0e5; font-size: 12px; text-decoration: none; transition: background .16s, color .16s; }
+    .profile-dropdown a:hover, .profile-dropdown a.active { background: rgba(150,94,255,.16); color: #fff; }
+    .profile-dropdown a.logout-link { color: #ffafb8; }
+    .profile-dropdown a.logout-link:hover { background: rgba(225,78,94,.13); color: #ffd0d5; }
+    .menu-icon { width: 15px; color: #b895ff; font-size: 14px; text-align: center; }
 
     .role-pill {
       font-size: 10px;
@@ -94,22 +132,6 @@
     .role-pill.player    { background: rgba(100,200,180,0.15); color: #7ee8d0; border: 1px solid rgba(100,200,180,0.25); }
     .role-pill.organizer { background: rgba(255,165,0,0.15);   color: #ffc56e; border: 1px solid rgba(255,165,0,0.25); }
     .role-pill.admin     { background: rgba(217,168,168,0.15); color: #d9a8a8; border: 1px solid rgba(217,168,168,0.3); }
-
-    .btn-logout {
-      font-size: 12px;
-      color: #c8b8b8;
-      text-decoration: none;
-      padding: 5px 13px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: background 0.18s, border-color 0.18s;
-    }
-
-    .btn-logout:hover {
-      background: rgba(220,80,80,0.15);
-      border-color: rgba(220,80,80,0.3);
-      color: #ff9999;
-    }
 
     .messages { list-style: none; padding: 12px 32px 0; }
     .messages li {
@@ -131,31 +153,44 @@
 
 {% if user.is_authenticated %}
 <nav class="nav">
-  <a class="nav-brand" href="/">⚔ Esports System</a>
+  <a class="nav-brand" href="{% url 'dashboard' %}" aria-label="MARKSMEN_es home">
+    <img src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN_es">
+  </a>
 
   <div class="nav-links">
     {% if user.role == 'player' %}
-      <a href="{% url 'browse_teams' %}">Browse Teams</a>
-      <a href="{% url 'create_team' %}">Create Team</a>
-      <a href="{% url 'my_team' %}">My Team</a>
-      <a href="{% url 'my_invites' %}">Invites</a>
+      <a href="{% url 'browse_teams' %}" class="{% if request.resolver_match.url_name == 'browse_teams' %}active{% endif %}">Browse Teams</a>
+      <a href="{% url 'create_team' %}" class="{% if request.resolver_match.url_name == 'create_team' %}active{% endif %}">Create Team</a>
+      <a href="{% url 'my_team' %}" class="{% if request.resolver_match.url_name == 'my_team' %}active{% endif %}">My Team</a>
+      <a href="{% url 'my_invites' %}" class="{% if request.resolver_match.url_name == 'my_invites' %}active{% endif %}">Invites</a>
       {% if user.captained_teams.exists %}
-          <a href="{% url 'my_join_requests' %}">Join Requests</a>
+          <a href="{% url 'my_join_requests' %}" class="{% if request.resolver_match.url_name == 'my_join_requests' %}active{% endif %}">Join Requests</a>
       {% endif %}
-      <a href="{% url 'player_profile' %}">My Profile</a>
     {% elif user.role == 'organizer' %}
-      <a href="{% url 'organizer_profile' %}">My Profile</a>
     {% elif user.role == 'admin' %}
-      <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+      <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
     {% endif %}
   </div>
 
   <div class="nav-right">
-    <span class="nav-username"><strong>{{ user.username }}</strong></span>
     {% if user.role %}
       <span class="role-pill {{ user.role }}">{{ user.role }}</span>
     {% endif %}
-    <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+    <details class="profile-menu">
+      <summary aria-label="Open profile menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.24-8 5v2h16v-2c0-2.76-3.58-5-8-5Z"/></svg>
+      </summary>
+      <div class="profile-dropdown">
+        <div class="profile-menu-head"><strong>{{ user.username }}</strong><span>{{ user.role }}</span></div>
+        {% if user.role == 'player' %}
+          <a href="{% url 'player_profile' %}" class="{% if request.resolver_match.url_name == 'player_profile' %}active{% endif %}"><span class="menu-icon">◉</span>My Profile</a>
+        {% elif user.role == 'organizer' %}
+          <a href="{% url 'organizer_profile' %}" class="{% if request.resolver_match.url_name == 'organizer_profile' %}active{% endif %}"><span class="menu-icon">◉</span>My Profile</a>
+        {% endif %}
+        <a href="{% url 'change_password' %}" class="{% if request.resolver_match.url_name == 'change_password' %}active{% endif %}"><span class="menu-icon">⚙</span>Change Password</a>
+        <a href="{% url 'logout' %}" class="logout-link"><span class="menu-icon">↪</span>Logout</a>
+      </div>
+    </details>
   </div>
 </nav>
 {% endif %}

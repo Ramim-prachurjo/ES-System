@@ -1,139 +1,100 @@
 {% extends "base.html" %}
-{% load notif_tags %}
-{% block title %}Player Dashboard{% endblock %}
+{% load static notif_tags %}
+{% block title %}Player Hub{% endblock %}
 
 {% block content %}
-<style>
-  .dash-header { margin-bottom: 32px; }
-  .dash-header h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 26px;
-    color: #d9a8a8;
-    letter-spacing: 0.06em;
-  }
-  .dash-header p { color: #a89a9a; font-size: 14px; margin-top: 6px; }
-
-  .dash-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-    max-width: 900px;
-  }
-
-  .dash-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 14px;
-    padding: 22px 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .dash-card:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(217,168,168,0.3);
-    transform: translateY(-2px);
-  }
-
-  .dash-card-icon { font-size: 22px; }
-
-  .dash-card-title {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    color: #d9a8a8;
-    letter-spacing: 0.05em;
-  }
-
-  .dash-card-desc {
-    font-size: 12px;
-    color: #7a6a6a;
-    line-height: 1.5;
-  }
-
-  .dash-card.highlight {
-    border-color: rgba(217,168,168,0.25);
-    background: rgba(217,168,168,0.06);
-  }
-
-  .notif-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #c46060;
-    margin-left: 6px;
-    vertical-align: middle;
-  }
-</style>
-
 {% unread_count user as notif_count %}
 
-<div class="dash-header">
-  <h1>Welcome, {{ user.username }}</h1>
-  <p>Here's your player hub. Jump to where you need to go.</p>
-</div>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Syncopate:wght@400;700&display=swap');
+  .player-hub { max-width: 1280px; margin: 0 auto; color: #f4f2ff; }
+  .player-hero { position: relative; overflow: hidden; min-height: 330px; padding: 54px; border: 1px solid rgba(145, 100, 255, .36); border-radius: 24px; background: linear-gradient(112deg, #121027 0%, #191139 51%, #0c1025 100%); isolation: isolate; }
+  .player-hero::before { content: ''; position: absolute; width: 540px; height: 540px; top: -250px; right: -100px; background: radial-gradient(circle, rgba(129, 75, 255, .62), rgba(94, 47, 213, .12) 41%, transparent 68%); z-index: -1; }
+  .player-hero::after { content: ''; position: absolute; width: 430px; height: 430px; bottom: -330px; right: 14%; border: 1px solid rgba(187, 157, 255, .3); border-radius: 50%; box-shadow: 0 0 0 38px rgba(187, 157, 255, .04), 0 0 0 76px rgba(187, 157, 255, .025); z-index: -1; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid rgba(180, 149, 255, .4); border-radius: 99px; color: #d8c7ff; background: rgba(140, 94, 255, .12); font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+  .eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #a879ff; box-shadow: 0 0 12px #a879ff; }
+  .hero-title { max-width: 670px; margin: 22px 0 12px; font-family: 'Syncopate', sans-serif; font-size: clamp(29px, 4.3vw, 52px); font-weight: 700; line-height: 1.18; letter-spacing: -.04em; }
+  .hero-title span { color: #ae82ff; }
+  .hero-copy { max-width: 510px; color: #c1b9d9; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; line-height: 1.45; letter-spacing: .02em; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 29px; }
+  .hub-button { display: inline-flex; align-items: center; justify-content: center; min-height: 45px; padding: 0 20px; border: 1px solid transparent; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .09em; text-decoration: none; text-transform: uppercase; transition: transform .2s, box-shadow .2s, background .2s; }
+  .hub-button:hover { transform: translateY(-2px); }
+  .hub-button.primary { background: #8b4dff; color: white; box-shadow: 0 12px 28px rgba(112, 60, 225, .36); }
+  .hub-button.primary:hover { background: #9c68ff; box-shadow: 0 16px 32px rgba(112, 60, 225, .5); }
+  .hub-button.secondary { border-color: rgba(218, 204, 255, .28); background: rgba(255,255,255,.045); color: #eeeaff; }
+  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 40px 0 16px; }
+  .section-heading h2 { font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: .08em; }
+  .section-heading p { color: #9189ab; font-size: 12px; }
+  .game-promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .game-promo { position: relative; min-height: 218px; overflow: hidden; padding: 25px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background-color: #121427; background-position: center; background-size: cover; color: #fff; text-decoration: none; isolation: isolate; transition: transform .25s, border-color .25s; }
+  .game-promo::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(5,7,18,.94) 3%, rgba(5,7,18,.56) 52%, rgba(5,7,18,.12) 100%); }
+  .game-promo:hover { border-color: rgba(184, 143, 255, .72); transform: translateY(-3px); }
+  .game-promo.valorant:hover { border-color: rgba(255, 136, 74, .72); }
+  .game-label { color: #c9b2ff; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+  .game-promo.valorant .game-label { color: #ffac7e; }
+  .game-promo h3 { max-width: 300px; margin: 14px 0 7px; font-family: 'Syncopate', sans-serif; font-size: clamp(20px, 2.4vw, 30px); line-height: 1.1; letter-spacing: -.04em; }
+  .game-promo p { max-width: 280px; color: #d2cddd; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; line-height: 1.35; }
+  .game-cta { position: absolute; left: 25px; bottom: 22px; color: #fff; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .feature-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+  .feature-card { position: relative; min-height: 172px; overflow: hidden; padding: 22px; border: 1px solid rgba(255,255,255,.09); border-radius: 17px; background: rgba(19, 19, 38, .78); color: inherit; text-decoration: none; transition: border-color .2s, transform .2s, background .2s; }
+  .feature-card:hover { border-color: rgba(164, 117, 255, .56); background: rgba(43, 27, 78, .9); transform: translateY(-3px); }
+  .feature-card.large { grid-column: span 5; background: linear-gradient(135deg, rgba(74, 37, 140, .72), rgba(21, 20, 42, .95)); }
+  .feature-card.medium { grid-column: span 4; }
+  .feature-card.small { grid-column: span 3; }
+  .feature-number { color: #9a6aff; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: .11em; }
+  .feature-icon { position: absolute; top: 16px; right: 18px; color: rgba(192, 169, 255, .75); font-size: 24px; }
+  .feature-card h3 { margin: 26px 0 8px; font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: .045em; }
+  .feature-card p { max-width: 260px; color: #aaa2be; font-size: 12px; line-height: 1.55; }
+  .card-arrow { position: absolute; right: 20px; bottom: 18px; color: #c7aeff; font-size: 19px; }
+  .card-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; margin-left: 6px; padding: 0 6px; border-radius: 99px; background: #9a58ff; color: white; font-size: 10px; vertical-align: middle; }
+  .bottom-grid { display: grid; grid-template-columns: 1.45fr .85fr; gap: 14px; margin-top: 14px; }
+  .panel { padding: 23px; border: 1px solid rgba(255,255,255,.09); border-radius: 17px; background: rgba(19, 19, 38, .78); }
+  .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+  .panel h3 { font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: .07em; }
+  .panel-link { color: #b58aff; font-size: 11px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: .08em; }
+  .empty-state { display: flex; align-items: center; gap: 13px; padding-top: 22px; color: #a39ab8; font-size: 12px; line-height: 1.5; }
+  .empty-state i { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; background: rgba(145, 95, 255, .14); color: #b991ff; font-style: normal; }
+  .profile-name { margin: 15px 0 4px; font-size: 18px; font-weight: 600; }
+  .profile-role { color: #aa9bc9; font-size: 12px; }
+  .profile-line { display: flex; align-items: center; gap: 7px; margin-top: 18px; color: #a98aff; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .profile-line::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #64dfa2; box-shadow: 0 0 9px #64dfa2; }
+  @media (max-width: 900px) { .feature-card.large { grid-column: span 6; } .feature-card.medium { grid-column: span 6; } .feature-card.small { grid-column: span 4; } }
+  @media (max-width: 640px) { .player-hero { min-height: 0; padding: 32px 24px; } .game-promo-grid { grid-template-columns: 1fr; } .feature-card.large, .feature-card.medium, .feature-card.small { grid-column: span 12; } .bottom-grid { grid-template-columns: 1fr; } .section-heading { align-items: start; flex-direction: column; } }
+</style>
 
-<div class="dash-grid">
-
-  <a href="{% url 'tournament_list' %}" class="dash-card highlight">
-    <div class="dash-card-icon">&#127942;</div>
-    <div class="dash-card-title">Tournaments</div>
-    <div class="dash-card-desc">Browse and apply to active tournaments.</div>
-  </a>
-
-  <a href="{% url 'browse_teams' %}" class="dash-card">
-    <div class="dash-card-icon">&#128100;</div>
-    <div class="dash-card-title">Browse Teams</div>
-    <div class="dash-card-desc">Find open teams for Valorant or PUBG.</div>
-  </a>
-
-  <a href="{% url 'create_team' %}" class="dash-card">
-    <div class="dash-card-icon">&#43;</div>
-    <div class="dash-card-title">Create Team</div>
-    <div class="dash-card-desc">Start your own team as captain.</div>
-  </a>
-
-  <a href="{% url 'my_team' %}" class="dash-card">
-    <div class="dash-card-icon">&#128737;</div>
-    <div class="dash-card-title">My Team</div>
-    <div class="dash-card-desc">View and manage your current teams.</div>
-  </a>
-
-  <a href="{% url 'my_invites' %}" class="dash-card">
-    <div class="dash-card-icon">&#128140;</div>
-    <div class="dash-card-title">My Invites</div>
-    <div class="dash-card-desc">Accept or reject team invitations.</div>
-  </a>
-
-  {% if user.captained_teams.exists %}
-  <a href="{% url 'my_join_requests' %}" class="dash-card">
-    <div class="dash-card-icon">&#128203;</div>
-    <div class="dash-card-title">Join Requests</div>
-    <div class="dash-card-desc">Approve players requesting to join your team.</div>
-  </a>
-  {% endif %}
-
-  <a href="{% url 'notification_list' %}" class="dash-card">
-    <div class="dash-card-icon">
-      &#128276;
-      {% if notif_count > 0 %}<span class="notif-dot"></span>{% endif %}
+<main class="player-hub">
+  <section class="player-hero">
+    <div class="eyebrow">Player Command Center</div>
+    <h1 class="hero-title">Play smarter.<br><span>Build your legacy.</span></h1>
+    <p class="hero-copy">Everything you need to discover tournaments, build a competitive roster, and stay ready for your next match.</p>
+    <div class="hero-actions">
+      <a href="{% url 'tournament_list' %}" class="hub-button primary">Explore tournaments</a>
+      <a href="{% url 'browse_teams' %}" class="hub-button secondary">Find a team</a>
     </div>
-    <div class="dash-card-title">
-      Notifications
-      {% if notif_count > 0 %}({{ notif_count }}){% endif %}
-    </div>
-    <div class="dash-card-desc">Check your latest alerts and updates.</div>
-  </a>
+  </section>
 
-  <a href="{% url 'player_profile' %}" class="dash-card">
-    <div class="dash-card-icon">&#9881;</div>
-    <div class="dash-card-title">My Profile</div>
-    <div class="dash-card-desc">Update your info and in-game role.</div>
-  </a>
+  <div class="section-heading">
+    <div><h2>YOUR COMPETITIVE HUB</h2><p>Choose your next move and keep your squad on track.</p></div>
+  </div>
 
-</div>
+  <section class="game-promo-grid" aria-label="Featured games">
+    <a href="{% url 'tournament_list' %}" class="game-promo pubg" style="background-image:url('{% static 'images/pubg-promo.png' %}');"><span class="game-label">Featured arena / Battle royale</span><h3>PUBG Mobile</h3><p>Drop in, form your squad, and compete for the next victory.</p><span class="game-cta">Find PUBG tournaments →</span></a>
+    <a href="{% url 'tournament_list' %}" class="game-promo valorant" style="background-image:url('{% static 'images/valorant-promo.png' %}');"><span class="game-label">Featured arena / Tactical shooter</span><h3>Valorant</h3><p>Build your lineup and take the next round with precision.</p><span class="game-cta">Find Valorant tournaments →</span></a>
+  </section>
+
+  <section class="feature-grid">
+    <a href="{% url 'tournament_list' %}" class="feature-card large"><span class="feature-number">01 / COMPETE</span><span class="feature-icon">✦</span><h3>Discover Tournaments</h3><p>Browse upcoming events, find your game, and put your team on the bracket.</p><span class="card-arrow">→</span></a>
+    <a href="{% url 'browse_teams' %}" class="feature-card medium"><span class="feature-number">02 / CONNECT</span><span class="feature-icon">⌘</span><h3>Browse Teams</h3><p>Find teams that match your game and ambition.</p><span class="card-arrow">→</span></a>
+    <a href="{% url 'create_team' %}" class="feature-card small"><span class="feature-number">03 / LEAD</span><span class="feature-icon">+</span><h3>Create Team</h3><p>Start your own roster.</p><span class="card-arrow">→</span></a>
+    <a href="{% url 'my_team' %}" class="feature-card medium"><span class="feature-number">04 / SQUAD</span><span class="feature-icon">◈</span><h3>My Team</h3><p>Manage your roster, captaincy, and team activity.</p><span class="card-arrow">→</span></a>
+    <a href="{% url 'my_invites' %}" class="feature-card small"><span class="feature-number">05 / INVITES</span><span class="feature-icon">↗</span><h3>Team Invites</h3><p>Review new opportunities.</p><span class="card-arrow">→</span></a>
+    {% if user.captained_teams.exists %}<a href="{% url 'my_join_requests' %}" class="feature-card small"><span class="feature-number">06 / CAPTAIN</span><span class="feature-icon">✓</span><h3>Join Requests</h3><p>Review future teammates.</p><span class="card-arrow">→</span></a>{% endif %}
+    <a href="{% url 'notification_list' %}" class="feature-card small"><span class="feature-number">07 / UPDATES</span><span class="feature-icon">●</span><h3>Notifications{% if notif_count > 0 %}<span class="card-badge">{{ notif_count }}</span>{% endif %}</h3><p>Stay on top of every update.</p><span class="card-arrow">→</span></a>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="panel"><div class="panel-top"><h3>COMPETITIVE ACTIVITY</h3><a href="{% url 'tournament_list' %}" class="panel-link">Browse events →</a></div><div class="empty-state"><i>✦</i><span>Your next tournament story starts here. Explore current events and apply with your team.</span></div></div>
+    <a href="{% url 'player_profile' %}" class="panel" style="text-decoration:none; color:inherit;"><div class="panel-top"><h3>PLAYER PROFILE</h3><span class="panel-link">Edit →</span></div><p class="profile-name">{{ user.username }}</p><p class="profile-role">Player profile and in-game role</p><p class="profile-line">Profile available</p></a>
+  </section>
+</main>
 {% endblock %}
