@@ -146,6 +146,7 @@ def view_organizer_profile(request, user_id):
 
 @login_required
 def change_password(request):
+    form = PasswordChangeForm(user=request.user)
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
@@ -153,6 +154,7 @@ def change_password(request):
             # keeps the user logged in after password change
             update_session_auth_hash(request, form.user)
             messages.success(request, "Password changed successfully.")
+            return redirect('change_password')
         else:
             # pass errors back — the profile template will show them
             for field, errors in form.errors.items():
@@ -160,6 +162,4 @@ def change_password(request):
                     messages.error(request, error)
 
     # always redirect back to the correct profile page
-    if request.user.role == 'organizer':
-        return redirect('organizer_profile')
-    return redirect('player_profile')
+    return render(request, 'accounts/change_password.html', {'form': form})
