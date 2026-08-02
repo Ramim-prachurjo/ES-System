@@ -47,7 +47,7 @@
   .feature-card p { max-width: 260px; color: #aaa2be; font-size: 12px; line-height: 1.55; }
   .card-arrow { position: absolute; right: 20px; bottom: 18px; color: #c7aeff; font-size: 19px; }
   .card-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; margin-left: 6px; padding: 0 6px; border-radius: 99px; background: #9a58ff; color: white; font-size: 10px; vertical-align: middle; }
-  .bottom-grid { display: grid; grid-template-columns: 1.45fr .85fr; gap: 14px; margin-top: 14px; }
+  .bottom-grid { margin-top: 14px; }
   .panel { padding: 23px; border: 1px solid rgba(255,255,255,.09); border-radius: 17px; background: rgba(19, 19, 38, .78); }
   .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
   .panel h3 { font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: .07em; }
@@ -59,7 +59,7 @@
   .profile-line { display: flex; align-items: center; gap: 7px; margin-top: 18px; color: #a98aff; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
   .profile-line::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #64dfa2; box-shadow: 0 0 9px #64dfa2; }
   @media (max-width: 900px) { .feature-card.large { grid-column: span 6; } .feature-card.medium { grid-column: span 6; } .feature-card.small { grid-column: span 4; } }
-  @media (max-width: 640px) { .player-hero { min-height: 0; padding: 32px 24px; } .game-promo-grid { grid-template-columns: 1fr; } .feature-card.large, .feature-card.medium, .feature-card.small { grid-column: span 12; } .bottom-grid { grid-template-columns: 1fr; } .section-heading { align-items: start; flex-direction: column; } }
+  @media (max-width: 640px) { .player-hero { min-height: 0; padding: 32px 24px; } .game-promo-grid { grid-template-columns: 1fr; } .feature-card.large, .feature-card.medium, .feature-card.small { grid-column: span 12; } .section-heading { align-items: start; flex-direction: column; } }
 </style>
 
 <main class="player-hub">
@@ -89,12 +89,7 @@
     <a href="{% url 'my_team' %}" class="feature-card medium"><span class="feature-number">04 / SQUAD</span><span class="feature-icon">◈</span><h3>My Team</h3><p>Manage your roster, captaincy, and team activity.</p><span class="card-arrow">→</span></a>
     <a href="{% url 'my_invites' %}" class="feature-card small"><span class="feature-number">05 / INVITES</span><span class="feature-icon">↗</span><h3>Team Invites</h3><p>Review new opportunities.</p><span class="card-arrow">→</span></a>
     {% if user.captained_teams.exists %}<a href="{% url 'my_join_requests' %}" class="feature-card small"><span class="feature-number">06 / CAPTAIN</span><span class="feature-icon">✓</span><h3>Join Requests</h3><p>Review future teammates.</p><span class="card-arrow">→</span></a>{% endif %}
-    <a href="{% url 'notification_list' %}" class="feature-card small"><span class="feature-number">07 / UPDATES</span><span class="feature-icon">●</span><h3>Notifications{% if notif_count > 0 %}<span class="card-badge">{{ notif_count }}</span>{% endif %}</h3><p>Stay on top of every update.</p><span class="card-arrow">→</span></a>
   </section>
 
-  <section class="bottom-grid">
-    <div class="panel"><div class="panel-top"><h3>COMPETITIVE ACTIVITY</h3><a href="{% url 'tournament_list' %}" class="panel-link">Browse events →</a></div><div class="empty-state"><i>✦</i><span>Your next tournament story starts here. Explore current events and apply with your team.</span></div></div>
-    <a href="{% url 'player_profile' %}" class="panel" style="text-decoration:none; color:inherit;"><div class="panel-top"><h3>PLAYER PROFILE</h3><span class="panel-link">Edit →</span></div><p class="profile-name">{{ user.username }}</p><p class="profile-role">Player profile and in-game role</p><p class="profile-line">Profile available</p></a>
-  </section>
 </main>
 {% endblock %}

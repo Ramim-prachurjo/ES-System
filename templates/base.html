@@ -1,4 +1,4 @@
-{% load static %}
+{% load static notif_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Esports System{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@500;600;700&family=Raleway:wght@300;400;500&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -104,6 +104,11 @@
       gap: 10px;
     }
 
+    .notification-link { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; background: rgba(255,255,255,.035); color: #dcd5eb; text-decoration: none; transition: border-color .18s, box-shadow .18s, transform .18s; }
+    .notification-link:hover, .notification-link.active { border-color: rgba(199,167,255,.7); box-shadow: 0 0 16px rgba(144,88,255,.28); color: #fff; transform: translateY(-1px); }
+    .notification-link svg { width: 18px; height: 18px; fill: currentColor; }
+    .notification-count { position: absolute; top: -3px; right: -4px; display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid #121126; border-radius: 99px; background: #a45cff; color: #fff; font-size: 9px; font-weight: 700; }
+
     .profile-menu { position: relative; }
     .profile-menu summary { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; background: linear-gradient(135deg, rgba(159,104,255,.38), rgba(47,35,99,.55)); color: #f6f0ff; cursor: pointer; list-style: none; transition: border-color .18s, box-shadow .18s, transform .18s; }
     .profile-menu summary::-webkit-details-marker { display: none; }
@@ -146,12 +151,33 @@
     .messages li.warning { background: rgba(220,170,60,0.12); border: 1px solid rgba(220,170,60,0.25); color: #ffcc66; }
 
     .main-content { padding: 32px; }
+
+    /* Shared player experience: one visual system for dashboard, teams, and tournaments. */
+    body.player-theme { background: #0b0b19; font-family: 'Rajdhani', sans-serif; color: #ece8f7; }
+    body.player-theme::before { background: radial-gradient(ellipse at 80% 0%, rgba(83,43,164,.32), transparent 52%), radial-gradient(ellipse at 8% 84%, rgba(18,113,131,.18), transparent 52%), #0b0b19; }
+    body.player-theme .page-header h1, body.player-theme .page-header h2, body.player-theme .profile-header h1, body.player-theme .invites-header h1, body.player-theme .team-name { color: #f1ecff; font-family: 'Syncopate', sans-serif; letter-spacing: .02em; }
+    body.player-theme .page-header p, body.player-theme .profile-header p, body.player-theme .team-meta, body.player-theme .filter-label, body.player-theme .join-code-hint, body.player-theme .invite-meta { color: #a9a1ba; }
+    body.player-theme .team-card, body.player-theme .filter-bar, body.player-theme .join-code-bar, body.player-theme .data-table, body.player-theme .invite-card, body.player-theme .profile-card, body.player-theme .request-card { background: rgba(20,19,43,.82); border-color: rgba(196,170,255,.15); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+    body.player-theme .team-card:hover, body.player-theme .invite-card:hover, body.player-theme .request-card:hover { border-color: rgba(179,134,255,.52); box-shadow: 0 14px 34px rgba(0,0,0,.25); }
+    body.player-theme .join-code-bar { background: rgba(110,68,197,.12); border-color: rgba(177,132,255,.28); }
+    body.player-theme .join-code-label, body.player-theme .section-label, body.player-theme .pw-section-label { color: #c9adff; }
+    body.player-theme .join-code-input, body.player-theme .filter-bar select, body.player-theme .filter-bar button, body.player-theme .profile-card input, body.player-theme .profile-card textarea, body.player-theme .profile-card select { border-color: rgba(197,173,255,.24); background: rgba(255,255,255,.045); color: #eeeaff; font-family: 'Rajdhani', sans-serif; }
+    body.player-theme .join-code-input:focus, body.player-theme .profile-card input:focus, body.player-theme .profile-card textarea:focus, body.player-theme .profile-card select:focus { border-color: #b784ff; }
+    body.player-theme .btn-join-code, body.player-theme .btn-apply.active, body.player-theme .btn-save, body.player-theme .btn-create { border-color: rgba(194,156,255,.5); background: linear-gradient(135deg, #8b4dff, #6030bd); color: #fff; }
+    body.player-theme .btn-join-code:hover, body.player-theme .btn-apply.active:hover, body.player-theme .btn-save:hover, body.player-theme .btn-create:hover { background: linear-gradient(135deg, #9e69ff, #7342d2); }
+    body.player-theme .view-btn { border-color: rgba(193,158,255,.38); background: rgba(140,87,255,.14); color: #d8c3ff; }
+    body.player-theme .view-btn:hover { background: rgba(140,87,255,.28); }
+    body.player-theme .data-table th { color: #9d93b0; }
+    body.player-theme .data-table td, body.player-theme .team-meta span, body.player-theme .invite-title, body.player-theme .info-row span { color: #eee9f7; }
+    body.player-theme .slot-bar-fill { background: linear-gradient(90deg, #7040d2, #bd91ff); }
+    body.player-theme .ingame-role-row label.selected { border-color: rgba(188,145,255,.65); background: rgba(139,77,255,.2); color: #d6bcff; }
   </style>
 </head>
 
-<body>
+<body class="{% if user.is_authenticated and user.role == 'player' %}player-theme{% endif %}">
 
 {% if user.is_authenticated %}
+{% unread_count user as nav_notif_count %}
 <nav class="nav">
   <a class="nav-brand" href="{% url 'dashboard' %}" aria-label="MARKSMEN_es home">
     <img src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN_es">
@@ -159,6 +185,7 @@
 
   <div class="nav-links">
     {% if user.role == 'player' %}
+      <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Home</a>
       <a href="{% url 'browse_teams' %}" class="{% if request.resolver_match.url_name == 'browse_teams' %}active{% endif %}">Browse Teams</a>
       <a href="{% url 'create_team' %}" class="{% if request.resolver_match.url_name == 'create_team' %}active{% endif %}">Create Team</a>
       <a href="{% url 'my_team' %}" class="{% if request.resolver_match.url_name == 'my_team' %}active{% endif %}">My Team</a>
@@ -176,6 +203,10 @@
     {% if user.role %}
       <span class="role-pill {{ user.role }}">{{ user.role }}</span>
     {% endif %}
+    <a href="{% url 'notification_list' %}" class="notification-link {% if request.resolver_match.url_name == 'notification_list' %}active{% endif %}" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.47 2.47 0 0 0 2.45-2h-4.9A2.47 2.47 0 0 0 12 22Zm7-6v-5a7 7 0 0 0-5-6.7V3a2 2 0 0 0-4 0v1.3A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
+      {% if nav_notif_count > 0 %}<span class="notification-count">{{ nav_notif_count }}</span>{% endif %}
+    </a>
     <details class="profile-menu">
       <summary aria-label="Open profile menu">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.24-8 5v2h16v-2c0-2.76-3.58-5-8-5Z"/></svg>
