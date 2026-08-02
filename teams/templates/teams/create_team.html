@@ -3,8 +3,18 @@
 
 {% block content %}
 <style>
+  .snake-ribbon-bg { position: fixed; inset: 56px 0 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: .6; }
+  .snake-ribbon-bg svg { width: 100%; height: 100%; }
+  .snake-ribbon-bg path { fill: none; stroke-linecap: round; }
+  .snake-ribbon-bg .snake-trail { stroke: rgba(145,91,255,.12); stroke-width: 2; }
+  .snake-ribbon-bg .snake-head { stroke: url(#snake-glow); stroke-width: 4; stroke-dasharray: 180 1120; animation: snake-slither 8s linear infinite; filter: drop-shadow(0 0 7px rgba(185,145,255,.78)); }
+  .snake-ribbon-bg .snake-head.alt { stroke-dasharray: 110 1190; animation-delay: -4.2s; opacity: .65; }
+  @keyframes snake-slither { from { stroke-dashoffset: 1300; } to { stroke-dashoffset: 0; } }
+
   .page-header {
     margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
   }
   .page-header h1 {
     font-family: 'Cinzel', serif;
@@ -21,13 +31,45 @@
   .form-wrap {
     max-width: 520px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .form-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: rgba(20,19,43,.88);
+    border: 1px solid rgba(196,170,255,.2);
+    border-radius: 17px;
     padding: 28px 30px;
+    box-shadow: 0 18px 42px rgba(0,0,0,.22);
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -34%;
+    width: 42%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #7d43e7 28%, #d4b5ff 52%, #7d43e7 76%, transparent);
+    box-shadow: 0 0 14px rgba(179,130,255,.9);
+    animation: team-ribbon 3.8s ease-in-out infinite;
+  }
+
+  .form-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(circle at 100% 0%, rgba(123,72,230,.16), transparent 35%);
+  }
+
+  @keyframes team-ribbon {
+    0%, 100% { transform: translateX(0) scaleX(.8); opacity: .5; }
+    50% { transform: translateX(280%) scaleX(1.25); opacity: 1; }
   }
 
   .form-group {
@@ -38,22 +80,36 @@
     display: block;
     margin-bottom: 6px;
     font-size: 13px;
-    color: #a89a9a;
+    color: #b9aecb;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: .03em;
   }
 
   input, select, textarea {
     width: 100%;
     padding: 10px 12px;
     border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.06);
-    color: #f0e0e0;
-    font-size: 14px;
+    border: 1px solid rgba(197,173,255,.26);
+    background: rgba(8,8,22,.62);
+    color: #f2edff;
+    color-scheme: dark;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
     outline: none;
   }
 
   input:focus, select:focus, textarea:focus {
-    border-color: rgba(217,168,168,0.5);
+    border-color: #b784ff;
+    box-shadow: 0 0 0 3px rgba(145,91,255,.12);
+  }
+
+  select option {
+    background: #16132c;
+    color: #f2edff;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
   }
 
   .error {
@@ -68,29 +124,60 @@
     padding: 10px;
     border-radius: 8px;
     border: none;
-    background: linear-gradient(135deg, #c46060, #a04040);
+    border: 1px solid rgba(202,173,255,.5);
+    background: linear-gradient(135deg, #9255ff, #6031bd);
     color: #fff;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    transition: transform .2s, box-shadow .2s, background .2s;
   }
   .btn-submit:hover {
-    background: linear-gradient(135deg, #d47070, #b05050);
+    background: linear-gradient(135deg, #a16aff, #7042d1);
+    box-shadow: 0 12px 24px rgba(111,61,209,.34);
+    transform: translateY(-1px);
   }
 
   .btn-back {
     display: inline-block;
     margin-top: 16px;
     padding: 7px 16px;
-    border-radius: 6px;
-    background: rgba(40,120,160,0.6);
-    color: white;
+    border: 1px solid rgba(196,170,255,.26);
+    border-radius: 8px;
+    background: rgba(255,255,255,.045);
+    color: #d7c2ff;
     text-decoration: none;
-    font-size: 13px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    transition: background .2s, border-color .2s;
   }
+  .btn-back:hover { background: rgba(142,82,255,.13); border-color: rgba(196,170,255,.5); }
 
 </style>
+
+<div class="snake-ribbon-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="snake-glow" x1="0" x2="1">
+        <stop offset="0" stop-color="#5729ad" stop-opacity="0" />
+        <stop offset=".28" stop-color="#9d68ff" />
+        <stop offset=".55" stop-color="#e0c7ff" />
+        <stop offset=".8" stop-color="#8a50eb" />
+        <stop offset="1" stop-color="#5729ad" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <path class="snake-trail" d="M-90,160 C270,15 290,390 620,255 S960,90 1190,300 S1450,500 1540,340" />
+    <path class="snake-head" d="M-90,160 C270,15 290,390 620,255 S960,90 1190,300 S1450,500 1540,340" />
+    <path class="snake-trail" d="M-100,670 C170,500 420,850 690,665 S1100,505 1540,725" />
+    <path class="snake-head alt" d="M-100,670 C170,500 420,850 690,665 S1100,505 1540,725" />
+  </svg>
+</div>
 
 <!-- Header -->
 <div class="page-header">
