@@ -163,3 +163,41 @@ def change_password(request):
 
     # always redirect back to the correct profile page
     return render(request, 'accounts/change_password.html', {'form': form})
+
+
+def _support_page(request, title, intro, sections):
+    return render(request, 'accounts/support_page.html', {
+        'page_title': title,
+        'intro': intro,
+        'sections': sections,
+    })
+
+
+def faq(request):
+    return _support_page(request, 'Frequently Asked Questions', 'Helpful answers for competing, organizing, and managing your MARKSMEN_es account.', [
+        {'heading': 'How do I join a tournament?', 'body': 'Create or join a team for the selected game, open the tournament, and submit an application when registration is available.'},
+        {'heading': 'Who can create tournaments?', 'body': 'Registered organizer accounts can create tournaments. New events are reviewed before they become available to players.'},
+        {'heading': 'How do venue bookings work?', 'body': 'Organizers can browse venues, submit booking requests, and follow the payment instructions when a venue requires a fee.'},
+        {'heading': 'Can a player join more than one team?', 'body': 'Players can join teams according to the game and team rules enforced by the platform. Check your My Team page before accepting an invite.'},
+        {'heading': 'Where can I find updates?', 'body': 'Use the notification bell in the header to see tournament, invitation, booking, and account updates.'},
+    ])
+
+
+def terms_conditions(request):
+    return _support_page(request, 'Terms & Conditions', 'These terms set clear expectations for respectful, fair participation on MARKSMEN_es.', [
+        {'heading': 'Platform use', 'body': 'You must provide accurate account information and use the platform only for lawful esports, team, tournament, and venue-management activities.'},
+        {'heading': 'Competitive conduct', 'body': 'Players, captains, and organizers must treat others respectfully. Cheating, harassment, impersonation, or deliberately misleading information may result in account restrictions.'},
+        {'heading': 'Tournament and venue decisions', 'body': 'Organizers are responsible for the accuracy of their event details. Venue availability, approvals, fees, and tournament outcomes may be subject to organizer or administrator review.'},
+        {'heading': 'Account security', 'body': 'Keep your password private and notify the platform team if you believe your account has been accessed without permission.'},
+        {'heading': 'Changes to the service', 'body': 'MARKSMEN_es may update features, procedures, or these terms to improve platform safety, reliability, and competitive integrity.'},
+    ])
+
+
+def privacy_policy(request):
+    return _support_page(request, 'Privacy Policy', 'We collect only the information needed to operate accounts, teams, tournaments, venue bookings, and platform communication.', [
+        {'heading': 'Information we use', 'body': 'This can include your account details, contact information, player profile details, team activity, tournament applications, and venue-booking information.'},
+        {'heading': 'How information is used', 'body': 'Information is used to deliver platform features, verify permissions, communicate updates, manage events, and help keep the community safe.'},
+        {'heading': 'Information sharing', 'body': 'Relevant information may be shown to other users when required for platform features, such as team rosters, tournament applications, and organizer communications. We do not sell personal information.'},
+        {'heading': 'Security', 'body': 'We use reasonable safeguards to protect account information. You also play an important role by using a strong, unique password.'},
+        {'heading': 'Questions about privacy', 'body': 'For questions about this policy or your account information, contact us at apon02931@gmail.com.'},
+    ])

@@ -10,4 +10,7 @@ urlpatterns = [
     path('profile/player/<int:user_id>/', views.view_player_profile, name='view_player_profile'),
     path('profile/organizer/', views.organizer_profile, name='organizer_profile'),
     path('profile/change-password/', views.change_password, name='change_password'),
+    path('support/faq/', views.faq, name='faq'),
+    path('support/terms-and-conditions/', views.terms_conditions, name='terms_conditions'),
+    path('support/privacy-policy/', views.privacy_policy, name='privacy_policy'),
 ]
