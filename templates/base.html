@@ -171,10 +171,25 @@
     body.player-theme .data-table td, body.player-theme .team-meta span, body.player-theme .invite-title, body.player-theme .info-row span { color: #eee9f7; }
     body.player-theme .slot-bar-fill { background: linear-gradient(90deg, #7040d2, #bd91ff); }
     body.player-theme .ingame-role-row label.selected { border-color: rgba(188,145,255,.65); background: rgba(139,77,255,.2); color: #d6bcff; }
+
+    /* Organizer experience uses the same system with a distinct amber/cyan identity. */
+    body.organizer-theme { background: #10100d; font-family: 'Rajdhani', sans-serif; color: #f5f0e5; }
+    body.organizer-theme::before { background: radial-gradient(ellipse at 84% 2%, rgba(194,118,27,.28), transparent 50%), radial-gradient(ellipse at 5% 85%, rgba(19,119,126,.17), transparent 52%), #10100d; }
+    body.organizer-theme .page-header h1, body.organizer-theme .page-header h2, body.organizer-theme .profile-header h1, body.organizer-theme .form-card h2 { color: #fff5db; font-family: 'Syncopate', sans-serif; letter-spacing: .02em; }
+    body.organizer-theme .form-card, body.organizer-theme .data-table, body.organizer-theme .team-card, body.organizer-theme .profile-card { background: rgba(31,27,18,.84); border-color: rgba(255,193,104,.18); box-shadow: 0 12px 32px rgba(0,0,0,.16); }
+    body.organizer-theme .form-card input, body.organizer-theme .form-card select, body.organizer-theme .form-card textarea, body.organizer-theme .profile-card input, body.organizer-theme .profile-card select, body.organizer-theme .profile-card textarea { border-color: rgba(255,196,111,.28); background: rgba(7,9,10,.52); color: #fff4df; color-scheme: dark; font-family: 'Rajdhani', sans-serif; }
+    body.organizer-theme select option { background: #1d190f; color: #fff4df; }
+    body.organizer-theme .form-card input:focus, body.organizer-theme .form-card select:focus, body.organizer-theme .form-card textarea:focus { border-color: #ffc36c; box-shadow: 0 0 0 3px rgba(255,169,65,.12); }
+    body.organizer-theme .btn-submit, body.organizer-theme .btn-create { border: 1px solid rgba(255,208,139,.52); background: linear-gradient(135deg, #e68a28, #a94f12); color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+    body.organizer-theme .btn-submit:hover, body.organizer-theme .btn-create:hover { background: linear-gradient(135deg, #f3a24d, #c06219); }
+    body.organizer-theme .view-btn { border-color: rgba(255,202,120,.38); background: rgba(224,136,39,.14); color: #ffd79c; }
+    body.organizer-theme .view-btn:hover { background: rgba(224,136,39,.27); }
+    body.organizer-theme .data-table th { color: #b7a68a; }
+    body.organizer-theme .data-table td { color: #f0e5d4; }
   </style>
 </head>
 
-<body class="{% if user.is_authenticated and user.role == 'player' %}player-theme{% endif %}">
+<body class="{% if user.is_authenticated and user.role == 'player' %}player-theme{% elif user.is_authenticated and user.role == 'organizer' %}organizer-theme{% endif %}">
 
 {% if user.is_authenticated %}
 {% unread_count user as nav_notif_count %}
@@ -194,6 +209,10 @@
           <a href="{% url 'my_join_requests' %}" class="{% if request.resolver_match.url_name == 'my_join_requests' %}active{% endif %}">Join Requests</a>
       {% endif %}
     {% elif user.role == 'organizer' %}
+      <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Home</a>
+      <a href="{% url 'tournament_list' %}" class="{% if request.resolver_match.url_name == 'tournament_list' or request.resolver_match.url_name == 'create_tournament' %}active{% endif %}">Tournaments</a>
+      <a href="{% url 'venue_list' %}" class="{% if request.resolver_match.url_name == 'venue_list' %}active{% endif %}">Venues</a>
+      <a href="{% url 'team_list' %}" class="{% if request.resolver_match.url_name == 'team_list' %}active{% endif %}">Teams</a>
     {% elif user.role == 'admin' %}
       <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
     {% endif %}
