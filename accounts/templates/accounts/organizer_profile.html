@@ -159,7 +159,7 @@
   </div>
 
   <!-- ✅ ADDED PASSWORD CARD -->
-  <div class="profile-card" style="margin-top: 20px;">
+  <div class="profile-card" style="display: none; margin-top: 20px;">
     <form method="post" action="{% url 'change_password' %}">
       {% csrf_token %}
 

@@ -1,100 +1,56 @@
 {% extends "base.html" %}
-{% block title %}Organizer Dashboard{% endblock %}
+{% block title %}Organizer Hub{% endblock %}
 
 {% block content %}
 <style>
-  .dash-header { margin-bottom: 32px; }
-  .dash-header h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 26px;
-    color: #d9a8a8;
-    letter-spacing: 0.06em;
-  }
-  .dash-header p { color: #a89a9a; font-size: 14px; margin-top: 6px; }
-
-  .dash-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-    max-width: 900px;
-  }
-
-  .dash-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 14px;
-    padding: 22px 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .dash-card:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(217,168,168,0.3);
-    transform: translateY(-2px);
-  }
-
-  .dash-card-icon  { font-size: 22px; }
-
-  .dash-card-title {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    color: #d9a8a8;
-    letter-spacing: 0.05em;
-  }
-
-  .dash-card-desc {
-    font-size: 12px;
-    color: #7a6a6a;
-    line-height: 1.5;
-  }
-
-  .dash-card.highlight {
-    border-color: rgba(217,168,168,0.25);
-    background: rgba(217,168,168,0.06);
-  }
+  .organizer-hub { max-width: 1280px; margin: 0 auto; }
+  .organizer-hero { position: relative; overflow: hidden; min-height: 325px; padding: 54px; border: 1px solid rgba(255,195,108,.33); border-radius: 24px; background: linear-gradient(115deg, #1b140c, #2c1a0a 54%, #0e1a1a); isolation: isolate; }
+  .organizer-hero::before { content: ''; position: absolute; top: -170px; right: -120px; width: 540px; height: 540px; border: 1px solid rgba(255,197,110,.26); border-radius: 50%; box-shadow: 0 0 0 46px rgba(255,180,63,.035), 0 0 0 92px rgba(255,180,63,.022); z-index: -1; }
+  .organizer-hero::after { content: ''; position: absolute; right: 11%; bottom: -260px; width: 460px; height: 460px; background: radial-gradient(circle, rgba(255,164,43,.32), transparent 64%); z-index: -1; }
+  .organizer-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid rgba(255,204,125,.42); border-radius: 99px; background: rgba(226,142,35,.13); color: #ffd99e; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .organizer-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #ffc264; box-shadow: 0 0 12px #ffc264; }
+  .organizer-title { max-width: 690px; margin: 23px 0 12px; color: #fff8ea; font-family: 'Syncopate', sans-serif; font-size: clamp(27px,4.1vw,51px); line-height: 1.2; letter-spacing: -.04em; }
+  .organizer-title span { color: #ffbd61; }
+  .organizer-copy { max-width: 540px; color: #d3c0a9; font-size: 16px; font-weight: 600; line-height: 1.45; }
+  .organizer-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .organizer-button { min-height: 45px; padding: 0 20px; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; transition: transform .2s, box-shadow .2s; }
+  .organizer-button:hover { transform: translateY(-2px); }
+  .organizer-button.primary { display: inline-flex; align-items: center; background: linear-gradient(135deg,#ed942d,#b95613); color: white; box-shadow: 0 12px 28px rgba(187,80,12,.35); }
+  .organizer-button.secondary { display: inline-flex; align-items: center; border-color: rgba(255,221,168,.3); background: rgba(255,255,255,.045); color: #fff2dc; }
+  .organizer-mark { position: absolute; right: 58px; bottom: 44px; color: rgba(255,208,133,.62); font-family: 'Syncopate', sans-serif; font-size: 52px; font-weight: 700; letter-spacing: -.15em; transform: rotate(-10deg); }
+  .hub-heading { margin: 39px 0 16px; }
+  .hub-heading h2 { color: #fff1dc; font-family: 'Syncopate', sans-serif; font-size: 17px; letter-spacing: .06em; }
+  .hub-heading p { margin-top: 6px; color: #a99a87; font-size: 13px; }
+  .organizer-grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 14px; }
+  .organizer-card { position: relative; min-height: 178px; overflow: hidden; padding: 22px; border: 1px solid rgba(255,255,255,.1); border-radius: 17px; background: rgba(30,26,18,.82); color: inherit; text-decoration: none; transition: border-color .2s, background .2s, transform .2s; }
+  .organizer-card:hover { border-color: rgba(255,190,94,.55); background: rgba(61,39,18,.86); transform: translateY(-3px); }
+  .organizer-card.primary { grid-column: span 5; background: linear-gradient(135deg, rgba(143,72,12,.72), rgba(36,26,16,.94)); }
+  .organizer-card.medium { grid-column: span 4; }
+  .organizer-card.small { grid-column: span 3; }
+  .organizer-card .number { color: #ffbe62; font-family: 'Syncopate', sans-serif; font-size: 11px; letter-spacing: .1em; }
+  .organizer-card .icon { position: absolute; top: 17px; right: 18px; color: rgba(255,204,130,.75); font-size: 24px; }
+  .organizer-card h3 { margin: 28px 0 8px; color: #fff4e2; font-family: 'Syncopate', sans-serif; font-size: 15px; letter-spacing: .025em; }
+  .organizer-card p { max-width: 260px; color: #baae9f; font-size: 13px; line-height: 1.5; }
+  .organizer-card .arrow { position: absolute; right: 20px; bottom: 18px; color: #ffd297; font-size: 20px; }
+  @media (max-width: 900px) { .organizer-card.primary,.organizer-card.medium { grid-column: span 6; } .organizer-card.small { grid-column: span 4; } }
+  @media (max-width: 640px) { .organizer-hero { min-height: 0; padding: 34px 25px; } .organizer-mark { display:none; } .organizer-card.primary,.organizer-card.medium,.organizer-card.small { grid-column: span 12; } }
 </style>
 
-<div class="dash-header">
-  <h1>Welcome, {{ user.username }}</h1>
-  <p>Organizer hub — manage your tournaments and venues.</p>
-</div>
+<main class="organizer-hub">
+  <section class="organizer-hero">
+    <div class="organizer-eyebrow">Organizer Command Center</div>
+    <h1 class="organizer-title">Create events.<br><span>Set the standard.</span></h1>
+    <p class="organizer-copy">Plan esports tournaments, secure the right venues, and manage every competitive experience from one place.</p>
+    <div class="organizer-actions"><a href="{% url 'create_tournament' %}" class="organizer-button primary">Create tournament</a><a href="{% url 'tournament_list' %}" class="organizer-button secondary">View tournaments</a></div>
+    <div class="organizer-mark" aria-hidden="true">ORG</div>
+  </section>
 
-<div class="dash-grid">
-
-  <a href="{% url 'create_tournament' %}" class="dash-card highlight">
-    <div class="dash-card-icon">&#43;</div>
-    <div class="dash-card-title">New Tournament</div>
-    <div class="dash-card-desc">Create a new tournament for approval.</div>
-  </a>
-
-  <a href="{% url 'tournament_list' %}" class="dash-card">
-    <div class="dash-card-icon">&#127942;</div>
-    <div class="dash-card-title">My Tournaments</div>
-    <div class="dash-card-desc">View and manage your tournaments.</div>
-  </a>
-
-  <a href="{% url 'venue_list' %}" class="dash-card">
-    <div class="dash-card-icon">&#127968;</div>
-    <div class="dash-card-title">Venues</div>
-    <div class="dash-card-desc">Browse venues and request a booking.</div>
-  </a>
-
-  <a href="{% url 'team_list' %}" class="dash-card">
-    <div class="dash-card-icon">&#128100;</div>
-    <div class="dash-card-title">All Teams</div>
-    <div class="dash-card-desc">See all registered teams.</div>
-  </a>
-
-  <a href="{% url 'organizer_profile' %}" class="dash-card">
-    <div class="dash-card-icon">&#9881;</div>
-    <div class="dash-card-title">My Profile</div>
-    <div class="dash-card-desc">Update your contact information.</div>
-  </a>
-
-</div>
+  <div class="hub-heading"><h2>EVENT MANAGEMENT</h2><p>Choose the next action for your tournament operation.</p></div>
+  <section class="organizer-grid">
+    <a href="{% url 'create_tournament' %}" class="organizer-card primary"><span class="number">01 / CREATE</span><span class="icon">+</span><h3>Launch a Tournament</h3><p>Set the games, venue, dates, team limit, fees, and prize pool for your next event.</p><span class="arrow">→</span></a>
+    <a href="{% url 'tournament_list' %}" class="organizer-card medium"><span class="number">02 / MANAGE</span><span class="icon">◈</span><h3>My Tournaments</h3><p>Track approval status and manage your live tournament schedule.</p><span class="arrow">→</span></a>
+    <a href="{% url 'venue_list' %}" class="organizer-card small"><span class="number">03 / VENUES</span><span class="icon">⌂</span><h3>Find a Venue</h3><p>Browse and book event spaces.</p><span class="arrow">→</span></a>
+    <a href="{% url 'team_list' %}" class="organizer-card medium"><span class="number">04 / COMMUNITY</span><span class="icon">◇</span><h3>All Teams</h3><p>Explore the registered teams competing on the platform.</p><span class="arrow">→</span></a>
+  </section>
+</main>
 {% endblock %}
