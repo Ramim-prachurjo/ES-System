@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} | MARKSMEN_es{% endblock %}
+
+{% block content %}
+<style>
+  .support-page { max-width: 920px; margin: 0 auto; }
+  .support-hero { padding: 40px; border: 1px solid rgba(188,155,255,.26); border-radius: 20px; background: linear-gradient(120deg, rgba(35,23,70,.88), rgba(16,17,35,.86)); }
+  .support-eyebrow { color: #cdb3ff; font-size: 11px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+  .support-hero h1 { margin: 13px 0 10px; color: #f5f1ff; font-family: 'Syncopate', sans-serif; font-size: clamp(23px,3.4vw,37px); line-height: 1.2; letter-spacing: -.03em; }
+  .support-hero p { max-width: 690px; color: #b9afcb; font-size: 14px; line-height: 1.6; }
+  .support-list { display: grid; gap: 12px; margin-top: 17px; }
+  .support-item { padding: 22px 24px; border: 1px solid rgba(255,255,255,.09); border-radius: 14px; background: rgba(19,19,38,.76); }
+  .support-item h2 { color: #eadfff; font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: .02em; }
+  .support-item p { margin-top: 7px; color: #aaa2bb; font-size: 14px; line-height: 1.6; }
+  body.organizer-theme .support-hero { border-color: rgba(255,196,111,.26); background: linear-gradient(120deg, rgba(72,39,12,.88), rgba(22,20,14,.86)); }
+  body.organizer-theme .support-eyebrow { color: #ffd092; }
+  body.organizer-theme .support-hero h1 { color: #fff4df; }
+  body.organizer-theme .support-item { border-color: rgba(255,196,111,.14); background: rgba(31,27,18,.78); }
+  body.organizer-theme .support-item h2 { color: #ffdfa9; }
+</style>
+
+<main class="support-page">
+  <header class="support-hero"><div class="support-eyebrow">MARKSMEN_es Support</div><h1>{{ page_title }}</h1><p>{{ intro }}</p></header>
+  <section class="support-list">
+    {% for section in sections %}<article class="support-item"><h2>{{ section.heading }}</h2><p>{{ section.body }}</p></article>{% endfor %}
+  </section>
+</main>
+{% endblock %}
