@@ -5,9 +5,11 @@ import uuid
 
 class Venue(models.Model):
     name             = models.CharField(max_length=150)
-    city             = models.CharField(max_length=100)
+    city             = models.CharField(max_length=100, blank=True)
     address          = models.TextField(blank=True)
     capacity         = models.PositiveIntegerField()
+    rental_fee       = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    description      = models.TextField(blank=True)
     is_available     = models.BooleanField(default=True)
     requires_payment = models.BooleanField(default=False)
     payment_amount   = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -25,6 +27,7 @@ class VenueBooking(models.Model):
     ]
 
     venue      = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='bookings')
+    tournament = models.OneToOneField('tournaments.Tournament', on_delete=models.CASCADE, related_name='venue_booking', null=True, blank=True)
     booked_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='venue_bookings')
     start_date = models.DateField()
     end_date   = models.DateField()
@@ -36,6 +39,10 @@ class VenueBooking(models.Model):
     payment_amount    = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_code      = models.CharField(max_length=20, blank=True)
     payment_confirmed = models.BooleanField(default=False)
+
+    @property
+    def booking_id(self):
+        return f"BK-{self.pk:05d}"
 
     def __str__(self):
         return f"{self.venue.name} | {self.start_date} → {self.end_date} [{self.status}]"

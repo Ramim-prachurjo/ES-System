@@ -223,7 +223,7 @@
   </style>
 </head>
 
-<body class="{% if user.is_authenticated and user.role == 'player' %}player-theme{% elif user.is_authenticated and user.role == 'organizer' %}organizer-theme{% endif %}">
+<body class="{% if user.is_authenticated and user.role == 'player' %}player-theme{% elif user.is_authenticated and user.role == 'organizer' %}organizer-theme{% elif user.is_authenticated and user.role == 'admin' %}admin-theme{% endif %}">
 
 {% if user.is_authenticated %}
 {% unread_count user as nav_notif_count %}
@@ -249,6 +249,7 @@
       <a href="{% url 'team_list' %}" class="{% if request.resolver_match.url_name == 'team_list' %}active{% endif %}">Teams</a>
     {% elif user.role == 'admin' %}
       <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="{% url 'manage_venues' %}" class="{% if request.resolver_match.url_name == 'manage_venues' or request.resolver_match.url_name == 'venue_add' or request.resolver_match.url_name == 'venue_edit' %}active{% endif %}">Venues</a>
     {% endif %}
   </div>
 

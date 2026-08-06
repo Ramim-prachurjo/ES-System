@@ -36,6 +36,8 @@ class Tournament(models.Model):
         null=True, blank=True,
         related_name='tournaments',
     )
+    needs_venue = models.BooleanField(default=True)
+    venue_address = models.TextField(blank=True)
 
     games = models.CharField(
         max_length=50,
