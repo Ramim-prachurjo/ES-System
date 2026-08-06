@@ -1,0 +1,254 @@
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+
+from .models import PlayerProfile
+from .forms import RegisterForm, PlayerProfileForm, OrganizerProfileForm
+
+User = get_user_model()
+
+
+# =====================================================
+#               MODEL TESTS
+# =====================================================
+
+class CustomUserModelTest(TestCase):
+
+    def test_create_player(self):
+        user = User.objects.create_user(
+            username="player1",
+            password="StrongPass123!",
+            role="player"
+        )
+
+        self.assertEqual(user.username, "player1")
+        self.assertEqual(user.role, "player")
+
+    def test_create_organizer(self):
+        user = User.objects.create_user(
+            username="organizer1",
+            password="StrongPass123!",
+            role="organizer"
+        )
+
+        self.assertEqual(user.role, "organizer")
+
+    def test_default_role(self):
+        user = User.objects.create_user(
+            username="defaultuser",
+            password="StrongPass123!"
+        )
+
+        self.assertEqual(user.role, "player")
+
+    def test_user_string_representation(self):
+        user = User.objects.create_user(
+            username="ramim",
+            password="StrongPass123!",
+            role="player"
+        )
+
+        self.assertEqual(str(user), "ramim (player)")
+
+
+class PlayerProfileModelTest(TestCase):
+
+    def test_create_player_profile(self):
+
+        user = User.objects.create_user(
+            username="player2",
+            password="StrongPass123!",
+            role="player"
+        )
+
+        profile = PlayerProfile.objects.create(
+            user=user,
+            ingame_role="assault",
+            bio="Professional Player"
+        )
+
+        self.assertEqual(profile.user.username, "player2")
+        self.assertEqual(profile.ingame_role, "assault")
+
+    def test_player_profile_string(self):
+
+        user = User.objects.create_user(
+            username="player3",
+            password="StrongPass123!"
+        )
+
+        profile = PlayerProfile.objects.create(
+            user=user,
+            ingame_role="support"
+        )
+
+        self.assertEqual(
+            str(profile),
+            "player3 — support"
+        )
+
+
+# =====================================================
+#               REGISTER FORM TESTS
+# =====================================================
+
+class RegisterFormTest(TestCase):
+
+    def test_valid_registration_form(self):
+
+        form = RegisterForm(data={
+            "username": "newplayer",
+            "email": "player@test.com",
+            "phone": "01711111111",
+            "address": "Dhaka",
+            "role": "player",
+            "password1": "StrongPassword123!",
+            "password2": "StrongPassword123!",
+        })
+
+        self.assertTrue(form.is_valid())
+
+    def test_password_mismatch(self):
+
+        form = RegisterForm(data={
+            "username": "newplayer",
+            "email": "player@test.com",
+            "role": "player",
+            "password1": "StrongPassword123!",
+            "password2": "WrongPassword123!",
+        })
+
+        self.assertFalse(form.is_valid())
+
+    def test_duplicate_username(self):
+
+        User.objects.create_user(
+            username="duplicate",
+            password="StrongPass123!"
+        )
+
+        form = RegisterForm(data={
+            "username": "duplicate",
+            "email": "abc@test.com",
+            "role": "player",
+            "password1": "StrongPassword123!",
+            "password2": "StrongPassword123!",
+        })
+
+        self.assertFalse(form.is_valid())
+
+
+# =====================================================
+#               PLAYER PROFILE FORM
+# =====================================================
+
+class PlayerProfileFormTest(TestCase):
+
+    def setUp(self):
+
+        self.user = User.objects.create_user(
+            username="playerform",
+            password="StrongPass123!",
+            role="player",
+            email="old@test.com"
+        )
+
+        self.profile = PlayerProfile.objects.create(
+            user=self.user
+        )
+
+    def test_player_profile_form_valid(self):
+
+        form = PlayerProfileForm(
+            data={
+                "first_name": "Ramim",
+                "last_name": "Islam",
+                "email": "new@test.com",
+                "phone": "01888888888",
+                "address": "Dhaka",
+                "ingame_role": "support",
+                "bio": "Competitive Player"
+            },
+            instance=self.profile,
+            user=self.user
+        )
+
+        self.assertTrue(form.is_valid())
+
+    def test_player_profile_save_updates_user(self):
+
+        form = PlayerProfileForm(
+            data={
+                "first_name": "John",
+                "last_name": "Doe",
+                "email": "john@test.com",
+                "phone": "01777777777",
+                "address": "Dhaka",
+                "ingame_role": "controller",
+                "bio": "New Bio"
+            },
+            instance=self.profile,
+            user=self.user
+        )
+
+        self.assertTrue(form.is_valid())
+
+        form.save()
+
+        self.user.refresh_from_db()
+        self.profile.refresh_from_db()
+
+        self.assertEqual(self.user.first_name, "John")
+        self.assertEqual(self.user.email, "john@test.com")
+        self.assertEqual(self.profile.ingame_role, "controller")
+
+
+# =====================================================
+#           ORGANIZER PROFILE FORM
+# =====================================================
+
+class OrganizerProfileFormTest(TestCase):
+
+    def setUp(self):
+
+        self.organizer = User.objects.create_user(
+            username="organizer",
+            password="StrongPass123!",
+            role="organizer"
+        )
+
+    def test_organizer_profile_form(self):
+
+        form = OrganizerProfileForm(
+            data={
+                "first_name": "Alex",
+                "last_name": "Smith",
+                "email": "alex@test.com",
+                "phone": "01999999999",
+                "address": "Dhaka"
+            },
+            instance=self.organizer
+        )
+
+        self.assertTrue(form.is_valid())
+
+    def test_organizer_profile_save(self):
+
+        form = OrganizerProfileForm(
+            data={
+                "first_name": "David",
+                "last_name": "Brown",
+                "email": "david@test.com",
+                "phone": "01666666666",
+                "address": "Chittagong"
+            },
+            instance=self.organizer
+        )
+
+        self.assertTrue(form.is_valid())
+
+        form.save()
+
+        self.organizer.refresh_from_db()
+
+        self.assertEqual(self.organizer.first_name, "David")
+        self.assertEqual(self.organizer.address, "Chittagong")
