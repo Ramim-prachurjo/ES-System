@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Delete Venue{% endblock %}{% block content %}<div style="max-width:620px;margin:auto"><h1>Delete {{ venue.name }}?</h1><p>This cannot be undone.</p><form method="post">{% csrf_token %}<button type="submit">Delete Venue</button> <a href="{% url 'manage_venues' %}">Cancel</a></form></div>{% endblock %}

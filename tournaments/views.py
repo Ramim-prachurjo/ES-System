@@ -83,7 +83,17 @@ def create_tournament(request):
                 tournament.venue_payment_code     = ''
 
             tournament.save()
+            if venue:
+                amount = venue.rental_fee or venue.payment_amount
+                booking = VenueBooking.objects.create(
+                    venue=venue, tournament=tournament, booked_by=request.user,
+                    start_date=start_date, end_date=end_date, status='pending',
+                    payment_required=amount > 0, payment_amount=amount,
+                    payment_code=f"{uuid.uuid4().hex[:2].upper()}{uuid.uuid4().int % 1000:03d}",
+                )
             messages.success(request, f"Tournament '{tournament.name}' submitted for admin approval.")
+            if venue:
+                return redirect('venue_booking_payment', pk=booking.pk)
 
             # ── Go to payment page if payment needed, otherwise go to detail ──
             if tournament.venue_payment_required:

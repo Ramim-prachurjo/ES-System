@@ -3,10 +3,43 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Venue, VenueBooking
-from .forms import BookingRequestForm
+from .forms import BookingRequestForm, VenueForm
 
 # ── Venues excluded from the standalone booking interface ──
 HIDDEN_VENUE_NAMES = ['East West University']
+
+def admin_only(request):
+    return request.user.role == 'admin'
+
+@login_required
+def manage_venues(request):
+    if not admin_only(request):
+        messages.error(request, 'Admin access only.')
+        return redirect('dashboard')
+    return render(request, 'venues/manage_venues.html', {'venues': Venue.objects.all().order_by('name')})
+
+@login_required
+def venue_edit(request, pk=None):
+    if not admin_only(request): return redirect('dashboard')
+    venue = get_object_or_404(Venue, pk=pk) if pk else None
+    form = VenueForm(request.POST or None, instance=venue)
+    if request.method == 'POST' and form.is_valid():
+        saved = form.save(commit=False)
+        saved.payment_amount = saved.rental_fee
+        saved.requires_payment = saved.rental_fee > 0
+        saved.save()
+        messages.success(request, 'Venue saved successfully.')
+        return redirect('manage_venues')
+    return render(request, 'venues/venue_form.html', {'form': form, 'venue': venue})
+
+@login_required
+def venue_delete(request, pk):
+    if not admin_only(request): return redirect('dashboard')
+    venue = get_object_or_404(Venue, pk=pk)
+    if request.method == 'POST':
+        venue.delete(); messages.success(request, 'Venue deleted.')
+        return redirect('manage_venues')
+    return render(request, 'venues/venue_delete.html', {'venue': venue})
 
 
 @login_required
@@ -84,5 +117,8 @@ def request_booking(request, venue_id):
 
 @login_required
 def venue_booking_payment(request, pk):
-    booking = get_object_or_404(VenueBooking, pk=pk, booked_by=request.user)
+    booking = get_object_or_404(VenueBooking, pk=pk)
+    if booking.booked_by != request.user and request.user.role != 'admin':
+        messages.error(request, 'You do not have permission to view this booking slip.')
+        return redirect('dashboard')
     return render(request, 'venues/venue_booking_payment.html', {'booking': booking})

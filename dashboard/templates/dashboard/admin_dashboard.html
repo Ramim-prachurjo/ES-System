@@ -237,6 +237,7 @@
           <td>{{ b.start_date }}</td>
           <td>{{ b.end_date }}</td>
           <td>
+            <a href="{% url 'venue_booking_payment' b.pk %}" class="act-approve" title="View payment slip">Slip</a>
             <a href="{% url 'approve_booking' b.pk %}" class="act-approve">✔</a>
             <a href="{% url 'reject_booking' b.pk %}" class="act-reject">✖</a>
           </td>

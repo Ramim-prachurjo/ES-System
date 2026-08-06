@@ -1,5 +1,10 @@
 from django import forms
-from .models import VenueBooking
+from .models import Venue, VenueBooking
+
+class VenueForm(forms.ModelForm):
+    class Meta:
+        model = Venue
+        fields = ['name', 'address', 'city', 'capacity', 'rental_fee', 'description', 'is_available']
 
 
 class BookingRequestForm(forms.ModelForm):

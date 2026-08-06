@@ -1,5 +1,6 @@
 from django import forms
 from .models import Tournament
+from venues.models import Venue, VenueBooking
 
 
 GAME_CHOICES = [
@@ -21,7 +22,7 @@ class TournamentForm(forms.ModelForm):
         model  = Tournament
         fields = [
             'name', 'description', 'rules',
-            'venue', 'games',
+            'needs_venue', 'venue', 'venue_address', 'games',
             'start_date', 'end_date',
             'max_teams', 'entry_fee', 'prize_pool',
         ]
@@ -30,6 +31,13 @@ class TournamentForm(forms.ModelForm):
             'end_date':   forms.DateInput(attrs={'type': 'date'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['needs_venue'].widget = forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')])
+        self.fields['venue'].required = False
+        self.fields['venue_address'].required = False
+        self.fields['venue'].queryset = Venue.objects.filter(is_available=True).order_by('name')
+
     def clean(self):
         cleaned_data = super().clean()
         start = cleaned_data.get('start_date')
@@ -37,6 +45,13 @@ class TournamentForm(forms.ModelForm):
 
         if start and end and end < start:
             raise forms.ValidationError("End date must be after start date.")
+        venue = cleaned_data.get('venue')
+        if cleaned_data.get('needs_venue') and not venue:
+            self.add_error('venue', 'Select an available venue.')
+        if not cleaned_data.get('needs_venue') and not cleaned_data.get('venue_address', '').strip():
+            self.add_error('venue_address', 'Enter the venue address.')
+        if venue and start and end and VenueBooking.objects.filter(venue=venue, status__in=['pending', 'confirmed'], start_date__lte=end, end_date__gte=start).exists():
+            self.add_error('venue', 'This venue is unavailable for those dates.')
 
         return cleaned_data
 
