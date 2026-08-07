@@ -149,11 +149,12 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 import cloudinary
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cloudinary.config(
-    cloud_name = 'i4p3gnjs',
-    api_key    = '436586793295623',
-    api_secret = 'DVlcaF9fgrv0Ru7svq7mQcsxBxs',
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key    = os.getenv('CLOUDINARY_API_KEY'),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET'),
 )
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from venues.models import Venue
 from teams.models import Team
 
@@ -47,6 +48,7 @@ class Tournament(models.Model):
 
     start_date = models.DateField()
     end_date   = models.DateField()
+    registration_deadline = models.DateTimeField(null=True, blank=True)
     max_teams  = models.PositiveIntegerField(default=16)
     entry_fee  = models.DecimalField(max_digits=8,  decimal_places=2, default=0.00)
     prize_pool = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -70,6 +72,12 @@ class Tournament(models.Model):
 
     def is_full(self):
         return self.applications.filter(status='approved').count() >= self.max_teams
+
+    @property
+    def enrollment_status(self):
+        if self.registration_deadline:
+            return 'closed' if timezone.now() >= self.registration_deadline else 'active'
+        return 'closed' if timezone.localdate() >= self.start_date else 'active'
 
     def __str__(self):
         return self.name

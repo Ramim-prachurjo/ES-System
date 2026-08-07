@@ -177,3 +177,18 @@ def organizer_history(request):
         'venue_bookings': venue_bookings,
         'tournaments':    tournaments,
     })
+
+
+@login_required
+def finish_tournament(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id, organizer=request.user)
+    if request.user.role != 'organizer':
+        messages.error(request, 'Organizer access only.')
+        return redirect('dashboard')
+    if tournament.status not in ('active', 'ongoing'):
+        messages.error(request, 'Only active or ongoing tournaments can be marked finished.')
+    else:
+        tournament.status = 'completed'
+        tournament.save(update_fields=['status'])
+        messages.success(request, f"{tournament.name} is now marked as finished.")
+    return redirect('organizer_history')

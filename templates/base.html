@@ -161,6 +161,8 @@
     .vf .switch { display: block !important; flex: 0 0 50px; width: 50px !important; height: 28px; margin: 0 !important; padding: 0 !important; cursor: pointer; }
     .vf .slider { position: relative; display: block; width: 50px; height: 28px; border-radius: 999px; }
     .vf .slider::before { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; margin: 0; box-sizing: border-box; }
+    body.admin-theme .admin-hub .admin-grid > .admin-panel:nth-child(2) { display: none; }
+    body.admin-theme .admin-hub .admin-grid > .admin-panel:first-child { grid-column: 1 / -1; }
 
     .site-footer { position: relative; margin-top: 58px; overflow: hidden; border-top: 1px solid rgba(255,255,255,.09); background: rgba(8,8,19,.78); }
     .site-footer::before { content: ''; position: absolute; top: -165px; left: 50%; width: 530px; height: 260px; border-radius: 50%; background: radial-gradient(ellipse, rgba(122,73,224,.18), transparent 68%); transform: translateX(-50%); pointer-events: none; }
@@ -257,6 +259,7 @@
       <a href="{% url 'tournament_list' %}" class="{% if request.resolver_match.url_name == 'tournament_list' or request.resolver_match.url_name == 'create_tournament' %}active{% endif %}">Tournaments</a>
       <a href="{% url 'venue_list' %}" class="{% if request.resolver_match.url_name == 'venue_list' %}active{% endif %}">Venues</a>
       <a href="{% url 'team_list' %}" class="{% if request.resolver_match.url_name == 'team_list' %}active{% endif %}">Teams</a>
+      <a href="{% url 'organizer_history' %}" class="{% if request.resolver_match.url_name == 'organizer_history' %}active{% endif %}">My History</a>
     {% elif user.role == 'admin' %}
       <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
       <a href="{% url 'manage_venues' %}" class="{% if request.resolver_match.url_name == 'manage_venues' or request.resolver_match.url_name == 'venue_add' or request.resolver_match.url_name == 'venue_edit' %}active{% endif %}">Venues</a>
