@@ -151,6 +151,16 @@
     .messages li.warning { background: rgba(220,170,60,0.12); border: 1px solid rgba(220,170,60,0.25); color: #ffcc66; }
 
     .main-content { padding: 32px; }
+    .book-card input[type="date"] { color-scheme: dark; }
+    .book-card input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(1.8); opacity: .9; cursor: pointer; }
+    /* Consistent, polished admin typography and venue-availability control. */
+    body.admin-theme { background: #0b171d; font-family: 'Rajdhani', sans-serif; color: #e8f5f7; }
+    body.admin-theme::before { background: radial-gradient(ellipse at 85% 0%, rgba(16,142,165,.25), transparent 52%), radial-gradient(ellipse at 5% 82%, rgba(26,82,133,.18), transparent 54%), #0b171d; }
+    body.admin-theme h1, body.admin-theme h2, body.admin-theme .venue-name { font-family: 'Syncopate', sans-serif; letter-spacing: -.025em; }
+    body.admin-theme input, body.admin-theme textarea, body.admin-theme select, body.admin-theme button { font-family: 'Rajdhani', sans-serif; font-weight: 600; }
+    .vf .switch { display: block !important; flex: 0 0 50px; width: 50px !important; height: 28px; margin: 0 !important; padding: 0 !important; cursor: pointer; }
+    .vf .slider { position: relative; display: block; width: 50px; height: 28px; border-radius: 999px; }
+    .vf .slider::before { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; margin: 0; box-sizing: border-box; }
 
     .site-footer { position: relative; margin-top: 58px; overflow: hidden; border-top: 1px solid rgba(255,255,255,.09); background: rgba(8,8,19,.78); }
     .site-footer::before { content: ''; position: absolute; top: -165px; left: 50%; width: 530px; height: 260px; border-radius: 50%; background: radial-gradient(ellipse, rgba(122,73,224,.18), transparent 68%); transform: translateX(-50%); pointer-events: none; }
@@ -250,6 +260,7 @@
     {% elif user.role == 'admin' %}
       <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
       <a href="{% url 'manage_venues' %}" class="{% if request.resolver_match.url_name == 'manage_venues' or request.resolver_match.url_name == 'venue_add' or request.resolver_match.url_name == 'venue_edit' %}active{% endif %}">Venues</a>
+      <a href="{% url 'admin_history' %}" class="{% if request.resolver_match.url_name == 'admin_history' %}active{% endif %}">History</a>
     {% endif %}
   </div>
 

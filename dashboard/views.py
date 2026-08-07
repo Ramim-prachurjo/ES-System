@@ -105,6 +105,26 @@ def reject_booking(request, booking_id):
 
 
 @admin_required
+def admin_history(request):
+    venue_query = request.GET.get('venue', '').strip()
+    booking_date = request.GET.get('date', '').strip()
+    bookings = VenueBooking.objects.filter(status='confirmed').select_related('venue', 'booked_by')
+    tournaments = Tournament.objects.filter(status__in=['active', 'ongoing', 'completed']).select_related('venue', 'organizer')
+    if venue_query:
+        bookings = bookings.filter(venue__name__icontains=venue_query)
+        tournaments = tournaments.filter(venue__name__icontains=venue_query)
+    if booking_date:
+        bookings = bookings.filter(start_date=booking_date)
+        tournaments = tournaments.filter(start_date=booking_date)
+    return render(request, 'dashboard/admin_history.html', {
+        'bookings': bookings.order_by('-created_at'),
+        'tournaments': tournaments.order_by('-created_at'),
+        'venue_query': venue_query,
+        'booking_date': booking_date,
+    })
+
+
+@admin_required
 def approve_tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     Tournament.objects.filter(pk=tournament_id).update(status='active', venue_payment_confirmed=True)
