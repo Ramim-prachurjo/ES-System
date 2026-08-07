@@ -23,12 +23,13 @@ class TournamentForm(forms.ModelForm):
         fields = [
             'name', 'description', 'rules',
             'needs_venue', 'venue', 'venue_address', 'games',
-            'start_date', 'end_date',
+            'start_date', 'end_date', 'registration_deadline',
             'max_teams', 'entry_fee', 'prize_pool',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date':   forms.DateInput(attrs={'type': 'date'}),
+            'registration_deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
 
     def __init__(self, *args, **kwargs):

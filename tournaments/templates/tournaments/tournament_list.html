@@ -75,6 +75,7 @@
 
   .pill.pending   { background: rgba(204,170,68,0.15);  color: #ccaa44; }
   .pill.active    { background: rgba(80,160,220,0.15);  color: #88aaee; }
+  .pill.closed    { background: rgba(220,80,80,0.15);   color: #ff9999; }
   .pill.ongoing   { background: rgba(100,200,180,0.15); color: #7ee8d0; }
   .pill.completed { background: rgba(136,204,136,0.15); color: #88cc88; }
   .pill.cancelled { background: rgba(220,80,80,0.15);  color: #ff9999; }
@@ -137,9 +138,11 @@
       <td>${{ t.prize_pool }}</td>
 
       <td>
-        <span class="pill {{ t.status }}">
-          {{ t.get_status_display }}
-        </span>
+        {% if user.role == 'organizer' %}
+          <span class="pill {{ t.enrollment_status }}">{{ t.enrollment_status|title }}</span>
+        {% else %}
+          <span class="pill {{ t.status }}">{{ t.get_status_display }}</span>
+        {% endif %}
       </td>
 
       <td>
