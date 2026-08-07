@@ -38,6 +38,13 @@ class TournamentForm(forms.ModelForm):
         self.fields['venue'].required = False
         self.fields['venue_address'].required = False
         self.fields['venue'].queryset = Venue.objects.filter(is_available=True).order_by('name')
+        # New tournaments begin with venue booking selected. Prefer a MARKSMEN venue
+        # when the admin has created one, without overriding an edit or submitted form.
+        if not self.is_bound and not self.instance.pk:
+            self.initial['needs_venue'] = True
+            marksmen_venue = self.fields['venue'].queryset.filter(name__icontains='marksmen').first()
+            if marksmen_venue:
+                self.initial['venue'] = marksmen_venue.pk
 
     def clean(self):
         cleaned_data = super().clean()
@@ -51,6 +58,11 @@ class TournamentForm(forms.ModelForm):
             self.add_error('venue', 'Select an available venue.')
         if not cleaned_data.get('needs_venue') and not cleaned_data.get('venue_address', '').strip():
             self.add_error('venue_address', 'Enter the venue address.')
+        if not cleaned_data.get('needs_venue'):
+            # A selector value may remain in the hidden field in the browser.
+            # Explicitly discard it so an own-address tournament never books a venue.
+            cleaned_data['venue'] = None
+            venue = None
         if venue and start and end and VenueBooking.objects.filter(venue=venue, status__in=['pending', 'confirmed'], start_date__lte=end, end_date__gte=start).exists():
             self.add_error('venue', 'This venue is unavailable for those dates.')
 

@@ -78,8 +78,8 @@
   </div>
 
   <section class="game-promo-grid" aria-label="Featured games">
-    <a href="{% url 'tournament_list' %}" class="game-promo pubg" style="background-image:url('{% static 'images/pubg-promo.png' %}');"><span class="game-label">Featured arena / Battle royale</span><h3>PUBG Mobile</h3><p>Drop in, form your squad, and compete for the next victory.</p><span class="game-cta">Find PUBG tournaments →</span></a>
-    <a href="{% url 'tournament_list' %}" class="game-promo valorant" style="background-image:url('{% static 'images/valorant-promo.png' %}');"><span class="game-label">Featured arena / Tactical shooter</span><h3>Valorant</h3><p>Build your lineup and take the next round with precision.</p><span class="game-cta">Find Valorant tournaments →</span></a>
+    <a href="{% url 'tournament_list' %}?game=pubg" class="game-promo pubg" style="background-image:url('{% static 'images/pubg-promo.png' %}');"><span class="game-label">Featured arena / Battle royale</span><h3>PUBG Mobile</h3><p>Drop in, form your squad, and compete for the next victory.</p><span class="game-cta">Find PUBG tournaments →</span></a>
+    <a href="{% url 'tournament_list' %}?game=valorant" class="game-promo valorant" style="background-image:url('{% static 'images/valorant-promo.png' %}');"><span class="game-label">Featured arena / Tactical shooter</span><h3>Valorant</h3><p>Build your lineup and take the next round with precision.</p><span class="game-cta">Find Valorant tournaments →</span></a>
   </section>
 
   <section class="feature-grid">

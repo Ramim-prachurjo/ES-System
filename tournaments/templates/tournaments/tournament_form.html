@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
@@ -13,11 +14,14 @@
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
     padding: 28px 32px;
+    font-family: Raleway, sans-serif;
   }
 
   h2 {
     color: #d9a8a8;
     margin-bottom: 18px;
+    font: 700 23px Cinzel, serif;
+    letter-spacing: .01em;
   }
 
   form p {
@@ -32,6 +36,24 @@
     background: rgba(0,0,0,0.3);
     color: #eee;
   }
+
+  .form-field { margin-bottom: 16px; }
+  .form-field > label { display: block; margin-bottom: 7px; color: #f0dcc6; font-weight: 700; letter-spacing: .03em; }
+  .form-field .helptext { display: block; margin-top: 5px; color: #a69b90; font-size: 12px; }
+  .form-field .errorlist { margin:6px 0 0; padding:8px 10px; list-style:none; border-left:3px solid #e26b6b; border-radius:5px; background:rgba(226,107,107,.1); color:#ffadad; font-size:13px; }
+  .form-field input[type="checkbox"], .form-field input[type="radio"] { width: auto; padding: 0; }
+  .game-picker { padding: 17px; border: 1px solid rgba(255,187,91,.24); border-radius: 11px; background: linear-gradient(120deg, rgba(146,79,20,.17), rgba(26,38,38,.32)); }
+  .game-picker > label { display:block; color:#ffe6c3; font-weight:700; letter-spacing:.05em; }
+  .game-hint { display:block; margin:5px 0 13px; color:#bba88e; font-size:12px; }
+  .game-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+  .game-choice { position:relative; display:flex; align-items:center; gap:11px; min-height:56px; padding:10px 12px; border:1px solid rgba(255,255,255,.12); border-radius:9px; background:rgba(8,12,14,.46); color:#f8ead6; cursor:pointer; transition:.18s; }
+  .game-choice:hover { border-color:rgba(255,177,68,.65); transform:translateY(-1px); }
+  .game-choice input { position:absolute; opacity:0; }
+  .game-choice .game-mark { display:grid; place-items:center; flex:0 0 42px; width:42px; height:32px; border:1px solid rgba(255,202,117,.32); border-radius:7px; overflow:hidden; background:#161313; }
+  .game-choice .game-mark img { width:36px; max-height:25px; object-fit:contain; filter:grayscale(1) brightness(1.6); transition:.18s; }
+  .game-choice .game-name { font-weight:700; letter-spacing:.04em; }
+  .game-choice:has(input:checked) { border-color:#ffab43; background:rgba(214,118,31,.19); box-shadow:0 0 0 2px rgba(255,171,67,.12); }
+  .game-choice:has(input:checked) .game-mark { border-color:#f29a31; }.game-choice:has(input:checked) .game-mark img { filter:none; }
 
   .btn-submit {
     margin-top: 12px;
@@ -83,7 +105,17 @@
 
     <form method="post">
       {% csrf_token %}
-      {{ form.as_p }}
+      {% for field in form %}
+        {% if field.name == 'games' %}
+          <div class="form-field game-picker">
+            <label>{{ field.label }}</label><span class="game-hint">Choose the game or games for this tournament.</span>
+            <div class="game-options">{% for choice in field %}<label class="game-choice">{{ choice.tag }}<span class="game-mark">{% if choice.choice_label == 'Valorant' %}<img src="{% static 'images/valorant-logo.svg' %}" alt="Valorant">{% else %}<img src="{% static 'images/pubg-logo.webp' %}" alt="PUBG">{% endif %}</span><span class="game-name">{{ choice.choice_label }}</span></label>{% endfor %}</div>
+            {{ field.errors }}
+          </div>
+        {% else %}
+          <div class="form-field field-{{ field.name }}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}{{ field.errors }}</div>
+        {% endif %}
+      {% endfor %}
 
       <div id="payment-notice"></div>
 
@@ -110,8 +142,29 @@ const venuePaymentData = {
 
 const venueSelect = document.getElementById('id_venue');
 const notice      = document.getElementById('payment-notice');
+const venueField = document.querySelector('.field-venue');
+const addressField = document.querySelector('.field-venue_address');
+const venueAddressInput = document.getElementById('id_venue_address');
+const venueAddressLabel = addressField.querySelector('label');
+const needsVenueInputs = document.querySelectorAll('input[name="needs_venue"]');
+
+function needsVenue() {
+  const selected = [...needsVenueInputs].find(input => input.checked);
+  return selected && ['True', 'true', '1'].includes(selected.value);
+}
+
+function updateVenueFields() {
+  const useVenue = needsVenue();
+  venueField.style.display = useVenue ? '' : 'none';
+  addressField.style.display = useVenue ? 'none' : '';
+  venueAddressInput.required = !useVenue;
+  venueAddressLabel.textContent = useVenue ? 'Venue address' : 'Venue address (required)';
+  if (!useVenue) notice.innerHTML = '';
+  else updatePaymentNotice();
+}
 
 function updatePaymentNotice() {
+  if (!needsVenue()) { notice.innerHTML = ''; return; }
   const selected = venuePaymentData[venueSelect.value];
   if (!selected) { notice.innerHTML = ''; return; }
 
@@ -131,7 +184,8 @@ function updatePaymentNotice() {
 }
 
 venueSelect.addEventListener('change', updatePaymentNotice);
-updatePaymentNotice();
+needsVenueInputs.forEach(input => input.addEventListener('change', updateVenueFields));
+updateVenueFields();
 </script>
 
 {% endblock %}

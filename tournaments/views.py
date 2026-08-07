@@ -10,6 +10,10 @@ from .forms import TournamentForm
 
 @login_required
 def tournament_list(request):
+    game_filter = request.GET.get('game', '').lower()
+    if game_filter not in {'pubg', 'valorant'}:
+        game_filter = ''
+
     if request.user.role == 'organizer':
         tournaments = Tournament.objects.filter(
             organizer=request.user
@@ -22,7 +26,13 @@ def tournament_list(request):
             status__in=['active', 'ongoing', 'completed']
         ).order_by('-created_at')
 
-    return render(request, 'tournaments/tournament_list.html', {'tournaments': tournaments})
+    if game_filter:
+        tournaments = tournaments.filter(games__contains=game_filter)
+
+    return render(request, 'tournaments/tournament_list.html', {
+        'tournaments': tournaments,
+        'selected_game': game_filter,
+    })
 
 
 @login_required
@@ -38,7 +48,7 @@ def create_tournament(request):
             tournament.organizer = request.user
             tournament.status    = 'pending'
 
-            venue      = form.cleaned_data.get('venue')
+            venue      = form.cleaned_data.get('venue') if form.cleaned_data.get('needs_venue') else None
             start_date = form.cleaned_data.get('start_date')
             end_date   = form.cleaned_data.get('end_date')
 
