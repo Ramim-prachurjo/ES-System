@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary',
+    'cloudinary_storage',
 
     ##My apps
     'accounts',
@@ -144,3 +146,14 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'  # need override with custom logic
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name = 'i4p3gnjs',
+    api_key    = '436586793295623',
+    api_secret = 'DVlcaF9fgrv0Ru7svq7mQcsxBxs',
+)
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
