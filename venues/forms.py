@@ -4,7 +4,12 @@ from .models import Venue, VenueBooking
 class VenueForm(forms.ModelForm):
     class Meta:
         model = Venue
-        fields = ['name', 'address', 'city', 'capacity', 'rental_fee', 'description', 'is_available']
+        fields = ['name', 'address', 'city', 'capacity', 'rental_fee', 'description', 'photo', 'is_available']
+        widgets = {
+            # The current Cloudinary URL is shown separately in the edit UI.
+            # FileInput avoids Django's confusing default URL / Clear checkbox.
+            'photo': forms.FileInput(attrs={'accept': 'image/*'}),
+        }
 
 
 class BookingRequestForm(forms.ModelForm):

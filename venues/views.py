@@ -22,7 +22,7 @@ def manage_venues(request):
 def venue_edit(request, pk=None):
     if not admin_only(request): return redirect('dashboard')
     venue = get_object_or_404(Venue, pk=pk) if pk else None
-    form = VenueForm(request.POST or None, instance=venue)
+    form = VenueForm(request.POST or None, request.FILES or None, instance=venue)
     if request.method == 'POST' and form.is_valid():
         saved = form.save(commit=False)
         saved.payment_amount = saved.rental_fee
@@ -93,7 +93,7 @@ def request_booking(request, venue_id):
             if venue.requires_payment:
                 booking.payment_required = True
                 booking.payment_amount   = venue.payment_amount
-                booking.payment_code     = f"VEN-{uuid.uuid4().hex[:8].upper()}"
+                booking.payment_code     = f"{uuid.uuid4().hex[:2].upper()}{uuid.uuid4().int % 1000:03d}"
             else:
                 booking.payment_required = False
                 booking.payment_amount   = 0.00

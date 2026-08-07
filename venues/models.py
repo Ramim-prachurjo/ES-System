@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from cloudinary.models import CloudinaryField
 import uuid
 
 
@@ -10,6 +11,7 @@ class Venue(models.Model):
     capacity         = models.PositiveIntegerField()
     rental_fee       = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     description      = models.TextField(blank=True)
+    photo            = CloudinaryField('venue_photo', blank=True, null=True)
     is_available     = models.BooleanField(default=True)
     requires_payment = models.BooleanField(default=False)
     payment_amount   = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
