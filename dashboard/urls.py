@@ -9,4 +9,5 @@ urlpatterns = [
     path('tournament/<int:tournament_id>/reject/',   views.reject_tournament,  name='reject_tournament'),
     path('organizer/history/',                       views.organizer_history,  name='organizer_history'),  # NEW
     path('history/',                                 views.admin_history,      name='admin_history'),
+    path('branding/',                                views.platform_branding,  name='platform_branding'),
 ]
