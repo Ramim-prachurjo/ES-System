@@ -5,6 +5,8 @@ from venues.models import VenueBooking
 from tournaments.models import Tournament
 from notifications.models import Notification
 from accounts.models import CustomUser
+from accounts.models import PlatformBranding
+from accounts.forms import PlatformBrandingForm
 from django.shortcuts import redirect
 from django.db.models import Q
 
@@ -122,6 +124,17 @@ def admin_history(request):
         'venue_query': venue_query,
         'booking_date': booking_date,
     })
+
+
+@admin_required
+def platform_branding(request):
+    branding = PlatformBranding.get_solo()
+    form = PlatformBrandingForm(request.POST or None, request.FILES or None, instance=branding)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Branding assets were saved to Cloudinary.')
+        return redirect('platform_branding')
+    return render(request, 'dashboard/platform_branding.html', {'form': form, 'branding': branding})
 
 
 @admin_required

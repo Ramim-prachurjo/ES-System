@@ -30,7 +30,7 @@
     .bg-image {
       position: fixed;
       inset: 0;
-      background: url('{% static "images/cse412.jpg" %}') no-repeat center center;
+      background: url('{{ branding.login_background_url }}') no-repeat center center;
       background-size: cover;
       z-index: 0;
     }
@@ -194,6 +194,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
+    @media (max-width: 520px) { body { align-items:stretch; overflow:auto; } .login-panel { width:100%; min-height:100vh; padding:38px 26px; border-radius:0; } .tagline { display:none; } .brand-logo { max-width:170px; } }
   </style>
 </head>
 
@@ -208,7 +209,7 @@
   <div class="login-panel">
 
     <div class="brand">
-      <img class="brand-logo" src="{% static 'images/marksmen_logo.png' %}" alt="Marksmen ES">
+      <img class="brand-logo" src="{{ branding.logo_url }}" alt="Marksmen ES">
     </div>
 
     <form method="post">

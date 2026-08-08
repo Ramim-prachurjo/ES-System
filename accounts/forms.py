@@ -1,7 +1,7 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser, PlayerProfile
+from .models import CustomUser, PlayerProfile, PlatformBranding
 
 
 class RegisterForm(UserCreationForm):
@@ -23,6 +23,18 @@ class RegisterForm(UserCreationForm):
 
 class LoginForm(AuthenticationForm):
     pass
+
+
+class PlatformBrandingForm(forms.ModelForm):
+    class Meta:
+        model = PlatformBranding
+        fields = ['logo', 'landing_video', 'login_background', 'register_background']
+        widgets = {
+            'logo': forms.FileInput(attrs={'accept': 'image/*'}),
+            'landing_video': forms.FileInput(attrs={'accept': 'video/*'}),
+            'login_background': forms.FileInput(attrs={'accept': 'image/*'}),
+            'register_background': forms.FileInput(attrs={'accept': 'image/*'}),
+        }
 
 
 class PlayerProfileForm(forms.ModelForm):

@@ -31,7 +31,7 @@
     .bg-image {
       position: fixed;
       inset: 0;
-      background: url('{% static "images/cse412.jpg" %}') no-repeat center center;
+      background: url('{{ branding.register_background_url }}') no-repeat center center;
       background-size: cover;
       z-index: 0;
     }
@@ -330,6 +330,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
+    @media (max-width: 520px) { body { padding:0; } .register-panel { min-height:100vh; max-width:none; padding:34px 24px; border-radius:0; } .brand-logo-img { max-width:170px; } .role-row > div { width:100%; } .role-row > div > div { flex:1; } .role-row > div > div > label { width:100%; justify-content:center; } }
   </style>
 </head>
 
@@ -344,7 +345,7 @@
   <div class="register-panel">
 
     <div class="brand">
-      <img class="brand-logo-img" src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN ES logo">
+      <img class="brand-logo-img" src="{{ branding.logo_url }}" alt="MARKSMEN ES logo">
     </div>
 
     <h1 class="register-heading">Create Account</h1>

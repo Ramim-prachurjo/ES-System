@@ -182,8 +182,8 @@
     .footer-game { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 34px; border: 1px solid rgba(255,255,255,.1); border-radius: 7px; color: #817b8e; transition: color .2s, border-color .2s, box-shadow .2s, transform .2s; }
     .footer-game svg { display: none; }
     .footer-game::after { content: ''; width: 37px; height: 23px; background-position: center; background-repeat: no-repeat; background-size: contain; filter: grayscale(1) brightness(1.55) contrast(.5); opacity: .76; transition: filter .2s, opacity .2s; }
-    .footer-game.pubg::after { background-image: url('{% static "images/pubg-logo.webp" %}'); width: 40px; }
-    .footer-game.valorant::after { background-image: url('{% static "images/valorant-logo.svg" %}'); }
+    .footer-game.pubg::after { background-image: url('https://res.cloudinary.com/i4p3gnjs/image/upload/v1786217838/pubg-logo_pmawce.webp'); width: 40px; }
+    .footer-game.valorant::after { background-image: url('https://res.cloudinary.com/i4p3gnjs/image/upload/v1786217838/valorant-logo_wunh7j.svg'); }
     .footer-game:hover { transform: translateY(-2px); }
     .footer-game.pubg:hover { border-color: rgba(255,188,82,.7); color: #ffc158; box-shadow: 0 0 14px rgba(255,174,49,.48); }
     .footer-game.valorant:hover { border-color: rgba(255,91,105,.72); color: #ff5c69; box-shadow: 0 0 14px rgba(255,63,81,.45); }
@@ -197,6 +197,7 @@
     body.organizer-theme .footer-links a:hover, body.organizer-theme .footer-contact a:hover, body.organizer-theme .footer-contact strong { color: #ffd092; }
     @media (max-width: 900px) { .footer-inner { grid-template-columns: 1.2fr 1fr; } }
     @media (max-width: 760px) { .footer-inner { grid-template-columns: 1fr; gap: 29px; padding: 36px 24px 27px; } .footer-bottom { align-items: flex-start; flex-direction: column; padding: 15px 24px 19px; } }
+    @media (max-width: 760px) { .nav { height:auto; min-height:58px; padding:8px 14px; gap:10px; } .nav-brand img { height:35px; } .nav-links { order:3; width:100%; overflow-x:auto; padding:2px 0 4px; gap:5px; scrollbar-width:thin; } .nav-links a { flex:0 0 auto; padding:6px 9px; font-size:11px; } .nav-right { margin-left:auto; gap:6px; } .role-pill { display:none; } .notification-link,.profile-menu summary { width:34px; height:34px; } .main-content { padding:20px 14px; } }
 
     /* Shared player experience: one visual system for dashboard, teams, and tournaments. */
     body.player-theme { background: #0b0b19; font-family: 'Rajdhani', sans-serif; color: #ece8f7; }
@@ -241,7 +242,7 @@
 {% unread_count user as nav_notif_count %}
 <nav class="nav">
   <a class="nav-brand" href="{% url 'dashboard' %}" aria-label="MARKSMEN_es home">
-    <img src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN_es">
+    <img src="{{ branding.logo_url }}" alt="MARKSMEN_es">
   </a>
 
   <div class="nav-links">
@@ -264,6 +265,7 @@
       <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Dashboard</a>
       <a href="{% url 'manage_venues' %}" class="{% if request.resolver_match.url_name == 'manage_venues' or request.resolver_match.url_name == 'venue_add' or request.resolver_match.url_name == 'venue_edit' %}active{% endif %}">Venues</a>
       <a href="{% url 'admin_history' %}" class="{% if request.resolver_match.url_name == 'admin_history' %}active{% endif %}">History</a>
+      <a href="{% url 'platform_branding' %}" class="{% if request.resolver_match.url_name == 'platform_branding' %}active{% endif %}">Branding</a>
     {% endif %}
   </div>
 
@@ -309,7 +311,7 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <section>
-      <div class="footer-brand"><img src="{% static 'images/marksmen_logo.png' %}" alt="MARKSMEN_es">MARKSMEN_es</div>
+      <div class="footer-brand"><img src="{{ branding.logo_url }}" alt="MARKSMEN_es">MARKSMEN_es</div>
       <p class="footer-about">MARKSMEN_es is an esports tournament platform built to help players, captains, organizers, and administrators create better competitive experiences. From forming a squad to managing a full event, we bring the community together in one focused space.</p>
       <div class="footer-games" aria-label="Featured games">
         <span class="footer-game pubg" title="PUBG"><svg viewBox="0 0 120 42" aria-hidden="true"><path d="M4 4h112v34H4V4Zm4 4v26h104V8H8Zm12 4h14c7 0 10 3 10 9s-3 9-10 9h-6v4h-8V12Zm8 6v6h3c3 0 4-1 4-3s-1-3-4-3h-3Zm19-6h8v16h10v7H47V12Zm22 0h8v23h-8V12Zm12 0h9l6 10 6-10h9l-10 16v7h-8v-7L81 12Z"/></svg></span>

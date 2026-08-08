@@ -109,7 +109,7 @@
         {% if field.name == 'games' %}
           <div class="form-field game-picker">
             <label>{{ field.label }}</label><span class="game-hint">Choose the game or games for this tournament.</span>
-            <div class="game-options">{% for choice in field %}<label class="game-choice">{{ choice.tag }}<span class="game-mark">{% if choice.choice_label == 'Valorant' %}<img src="{% static 'images/valorant-logo.svg' %}" alt="Valorant">{% else %}<img src="{% static 'images/pubg-logo.webp' %}" alt="PUBG">{% endif %}</span><span class="game-name">{{ choice.choice_label }}</span></label>{% endfor %}</div>
+            <div class="game-options">{% for choice in field %}<label class="game-choice">{{ choice.tag }}<span class="game-mark">{% if choice.choice_label == 'Valorant' %}<img src="https://res.cloudinary.com/i4p3gnjs/image/upload/v1786217838/valorant-logo_wunh7j.svg" alt="Valorant">{% else %}<img src="https://res.cloudinary.com/i4p3gnjs/image/upload/v1786217838/pubg-logo_pmawce.webp" alt="PUBG">{% endif %}</span><span class="game-name">{{ choice.choice_label }}</span></label>{% endfor %}</div>
             {{ field.errors }}
           </div>
         {% else %}
