@@ -10,6 +10,13 @@ from .models import PlayerProfile, CustomUser
 
 
 # ── Register ────────────────────────────────────────────────────────────────
+def landing(request):
+    """Public entry point shown before the login page."""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'accounts/landing.html')
+
+
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
