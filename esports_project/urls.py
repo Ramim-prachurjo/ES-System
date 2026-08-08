@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
+from accounts import views as account_views
 
 urlpatterns = [
     path('admin/',           admin.site.urls),
@@ -10,5 +10,5 @@ urlpatterns = [
     path('teams/',           include('teams.urls')),
     path('tournaments/',     include('tournaments.urls')),
     path('notifications/',   include('notifications.urls')),   # NEW
-    path('', lambda request: redirect('login')),
+    path('',                 account_views.landing, name='home'),
 ]
