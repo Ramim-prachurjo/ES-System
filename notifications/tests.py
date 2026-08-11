@@ -122,3 +122,28 @@ class NotificationModelTest(TestCase):
         )
 
 
+class NotificationViewTest(TestCase):
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="testuser",
+            password="testpass123",
+            role="player",
+        )
+
+        self.other_user = CustomUser.objects.create_user(
+            username="otheruser",
+            password="testpass123",
+            role="player",
+        )
+
+    def test_notification_list_requires_login(self):
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302
+        )
+
