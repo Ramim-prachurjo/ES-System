@@ -282,3 +282,21 @@ def test_already_read_notification_remains_read(self):
             notification3.is_read
         )
 
+ def test_notification_list_contains_user_notifications(self):
+        Notification.objects.create(
+            user=self.user,
+            message="Tournament approved!",
+        )
+
+        self.client.force_login(
+            self.user
+        )
+
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        self.assertContains(
+            response,
+            "Tournament approved!"
+        )
