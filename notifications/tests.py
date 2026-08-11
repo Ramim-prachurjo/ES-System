@@ -59,4 +59,27 @@ class NotificationModelTest(TestCase):
         self.assertTrue(
             notification.is_read
         )
+  def test_notification_str_unread(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="You were approved!",
+            is_read=False,
+        )
+
+        self.assertEqual(
+            str(notification),
+            "To testuser: You were approved! [unread]"
+        )
+
+    def test_notification_str_read(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="You were approved!",
+            is_read=True,
+        )
+
+        self.assertEqual(
+            str(notification),
+            "To testuser: You were approved! [read]"
+        )
 
