@@ -218,3 +218,24 @@ class NotificationViewTest(TestCase):
             notification.is_read
         )
 
+def test_already_read_notification_remains_read(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="Already read",
+            is_read=True,
+        )
+
+        self.client.force_login(
+            self.user
+        )
+
+        self.client.get(
+            reverse("notification_list")
+        )
+
+        notification.refresh_from_db()
+
+        self.assertTrue(
+            notification.is_read
+        )
+
