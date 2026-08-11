@@ -5,103 +5,127 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import CustomUser
-from venues.models import Venue, VenueBooking
-from venues.forms import VenueForm, BookingRequestForm
+from .models import Venue, VenueBooking
+from .forms import VenueForm, BookingRequestForm
 
 
 class VenueModelTest(TestCase):
 
     def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="organizer",
+            password="testpass123",
+            role="organizer",
+        )
+
         self.venue = Venue.objects.create(
             name="Test Arena",
             city="Dhaka",
-            address="Dhaka, Bangladesh",
+            address="Test Address",
             capacity=100,
             rental_fee=Decimal("5000.00"),
             description="Test venue",
             is_available=True,
-            requires_payment=True,
-            payment_amount=Decimal("5000.00"),
         )
 
     def test_venue_creation(self):
         self.assertEqual(self.venue.name, "Test Arena")
         self.assertEqual(self.venue.city, "Dhaka")
         self.assertEqual(self.venue.capacity, 100)
+        self.assertEqual(self.venue.rental_fee, Decimal("5000.00"))
+        self.assertTrue(self.venue.is_available)
 
-    def test_venue_string(self):
+    def test_venue_str(self):
         self.assertEqual(
             str(self.venue),
             "Test Arena, Dhaka"
         )
 
-    def test_venue_booking_id(self):
-        user = CustomUser.objects.create_user(
-            username="organizer1",
-            password="password123",
+
+class VenueBookingModelTest(TestCase):
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="organizer",
+            password="testpass123",
             role="organizer",
         )
 
-        booking = VenueBooking.objects.create(
+        self.venue = Venue.objects.create(
+            name="Test Arena",
+            city="Dhaka",
+            address="Test Address",
+            capacity=100,
+            rental_fee=Decimal("5000.00"),
+            is_available=True,
+        )
+
+        self.booking = VenueBooking.objects.create(
             venue=self.venue,
-            booked_by=user,
-            start_date=date(2026, 8, 10),
-            end_date=date(2026, 8, 12),
-        )
-
-        self.assertEqual(
-            booking.booking_id,
-            f"BK-{booking.pk:05d}"
-        )
-
-    def test_venue_booking_string(self):
-        user = CustomUser.objects.create_user(
-            username="organizer2",
-            password="password123",
-            role="organizer",
-        )
-
-        booking = VenueBooking.objects.create(
-            venue=self.venue,
-            booked_by=user,
-            start_date=date(2026, 8, 10),
-            end_date=date(2026, 8, 12),
+            booked_by=self.user,
+            start_date=date(2026, 8, 15),
+            end_date=date(2026, 8, 17),
             status="pending",
         )
 
+    def test_booking_creation(self):
+        self.assertEqual(self.booking.venue, self.venue)
+        self.assertEqual(self.booking.booked_by, self.user)
+        self.assertEqual(self.booking.status, "pending")
+
+    def test_booking_id_generation(self):
         self.assertEqual(
-            str(booking),
-            "Test Arena | 2026-08-10 → 2026-08-12 [pending]"
+            self.booking.booking_id,
+            f"BK-{self.booking.pk:05d}"
         )
+
+    def test_booking_str(self):
+        expected = (
+            f"{self.venue.name} | "
+            f"{self.booking.start_date} → "
+            f"{self.booking.end_date} "
+            f"[{self.booking.status}]"
+        )
+
+        self.assertEqual(
+            str(self.booking),
+            expected
+        )
+
+    def test_payment_defaults(self):
+        self.assertFalse(self.booking.payment_required)
+        self.assertEqual(
+            self.booking.payment_amount,
+            Decimal("0.00")
+        )
+        self.assertEqual(self.booking.payment_code, "")
+        self.assertFalse(self.booking.payment_confirmed)
 
 
 class VenueFormTest(TestCase):
 
     def test_valid_venue_form(self):
-        form = VenueForm(data={
-            "name": "New Arena",
-            "address": "Dhaka",
-            "city": "Dhaka",
-            "capacity": 200,
-            "rental_fee": "10000.00",
-            "description": "Large arena",
-            "is_available": True,
-        })
+        form = VenueForm(
+            data={
+                "name": "New Arena",
+                "city": "Dhaka",
+                "address": "Test Address",
+                "capacity": 200,
+                "rental_fee": "10000.00",
+                "description": "Gaming venue",
+                "is_available": True,
+            }
+        )
 
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
-    def test_venue_form_missing_name(self):
-        form = VenueForm(data={
-            "address": "Dhaka",
-            "city": "Dhaka",
-            "capacity": 200,
-            "rental_fee": "10000.00",
-            "description": "Large arena",
-            "is_available": True,
-        })
+    def test_required_venue_fields(self):
+        form = VenueForm(data={})
 
         self.assertFalse(form.is_valid())
+
         self.assertIn("name", form.errors)
+        self.assertIn("capacity", form.errors)
 
 
 class BookingRequestFormTest(TestCase):
@@ -110,81 +134,106 @@ class BookingRequestFormTest(TestCase):
         self.venue = Venue.objects.create(
             name="Booking Arena",
             city="Dhaka",
+            address="Test Address",
             capacity=100,
             rental_fee=Decimal("5000.00"),
+            is_available=True,
+        )
+
+        self.user = CustomUser.objects.create_user(
+            username="organizer",
+            password="testpass123",
+            role="organizer",
         )
 
     def test_valid_booking_dates(self):
         form = BookingRequestForm(
             data={
-                "start_date": "2026-08-10",
-                "end_date": "2026-08-12",
+                "start_date": "2026-08-15",
+                "end_date": "2026-08-17",
             },
             venue=self.venue,
         )
 
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_end_date_before_start_date(self):
         form = BookingRequestForm(
             data={
-                "start_date": "2026-08-15",
-                "end_date": "2026-08-10",
+                "start_date": "2026-08-20",
+                "end_date": "2026-08-15",
             },
             venue=self.venue,
         )
 
         self.assertFalse(form.is_valid())
 
-    def test_overlapping_booking_is_rejected(self):
-        user = CustomUser.objects.create_user(
-            username="existing",
-            password="password123",
-            role="organizer",
+        self.assertIn(
+            "End date must be on or after the start date.",
+            str(form.errors)
         )
 
+    def test_overlapping_booking_is_rejected(self):
         VenueBooking.objects.create(
             venue=self.venue,
-            booked_by=user,
-            start_date=date(2026, 8, 10),
-            end_date=date(2026, 8, 15),
+            booked_by=self.user,
+            start_date=date(2026, 8, 15),
+            end_date=date(2026, 8, 20),
             status="confirmed",
         )
 
         form = BookingRequestForm(
             data={
-                "start_date": "2026-08-12",
-                "end_date": "2026-08-18",
+                "start_date": "2026-08-18",
+                "end_date": "2026-08-22",
             },
             venue=self.venue,
         )
 
         self.assertFalse(form.is_valid())
 
-    def test_cancelled_booking_does_not_create_conflict(self):
-        user = CustomUser.objects.create_user(
-            username="cancelled_user",
-            password="password123",
-            role="organizer",
+        self.assertIn(
+            "These dates overlap with an existing booking",
+            str(form.errors)
         )
 
+    def test_non_overlapping_booking_is_accepted(self):
         VenueBooking.objects.create(
             venue=self.venue,
-            booked_by=user,
-            start_date=date(2026, 8, 10),
-            end_date=date(2026, 8, 15),
+            booked_by=self.user,
+            start_date=date(2026, 8, 15),
+            end_date=date(2026, 8, 20),
+            status="confirmed",
+        )
+
+        form = BookingRequestForm(
+            data={
+                "start_date": "2026-08-21",
+                "end_date": "2026-08-25",
+            },
+            venue=self.venue,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_cancelled_booking_does_not_create_conflict(self):
+        VenueBooking.objects.create(
+            venue=self.venue,
+            booked_by=self.user,
+            start_date=date(2026, 8, 15),
+            end_date=date(2026, 8, 20),
             status="cancelled",
         )
 
         form = BookingRequestForm(
             data={
-                "start_date": "2026-08-12",
-                "end_date": "2026-08-18",
+                "start_date": "2026-08-18",
+                "end_date": "2026-08-22",
             },
             venue=self.venue,
         )
 
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
 
 class VenueViewTest(TestCase):
@@ -192,59 +241,48 @@ class VenueViewTest(TestCase):
     def setUp(self):
         self.admin = CustomUser.objects.create_user(
             username="admin",
-            password="password123",
+            password="adminpass123",
             role="admin",
         )
 
         self.organizer = CustomUser.objects.create_user(
             username="organizer",
-            password="password123",
+            password="organizerpass123",
+            role="organizer",
+        )
+
+        self.other_organizer = CustomUser.objects.create_user(
+            username="otherorganizer",
+            password="otherpass123",
             role="organizer",
         )
 
         self.player = CustomUser.objects.create_user(
             username="player",
-            password="password123",
+            password="playerpass123",
             role="player",
         )
 
         self.venue = Venue.objects.create(
-            name="Main Arena",
+            name="Test Arena",
             city="Dhaka",
-            address="Dhaka",
+            address="Test Address",
             capacity=100,
             rental_fee=Decimal("5000.00"),
             is_available=True,
         )
 
-    def test_venue_list_requires_login(self):
-        response = self.client.get(
-            reverse("venue_list")
+        self.hidden_venue = Venue.objects.create(
+            name="East West University",
+            city="Dhaka",
+            address="EWU Address",
+            capacity=500,
+            rental_fee=Decimal("10000.00"),
+            is_available=True,
         )
 
-        self.assertEqual(response.status_code, 302)
-
-    def test_logged_in_user_can_view_venue_list(self):
-        self.client.login(
-            username="player",
-            password="password123",
-        )
-
-        response = self.client.get(
-            reverse("venue_list")
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response,
-            "venues/venue_list.html"
-        )
-
-    def test_admin_can_view_manage_venues(self):
-        self.client.login(
-            username="admin",
-            password="password123",
-        )
+    def test_admin_can_manage_venues(self):
+        self.client.force_login(self.admin)
 
         response = self.client.get(
             reverse("manage_venues")
@@ -257,60 +295,30 @@ class VenueViewTest(TestCase):
         )
 
     def test_non_admin_cannot_manage_venues(self):
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
+        self.client.force_login(self.organizer)
 
         response = self.client.get(
             reverse("manage_venues")
         )
 
         self.assertEqual(response.status_code, 302)
-
-    def test_admin_can_open_add_venue_page(self):
-        self.client.login(
-            username="admin",
-            password="password123",
+        self.assertEqual(
+            response.url,
+            reverse("dashboard")
         )
 
-        response = self.client.get(
-            reverse("venue_add")
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response,
-            "venues/venue_form.html"
-        )
-
-    def test_non_admin_cannot_add_venue(self):
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
-
-        response = self.client.get(
-            reverse("venue_add")
-        )
-
-        self.assertEqual(response.status_code, 302)
-
-    def test_admin_can_create_venue(self):
-        self.client.login(
-            username="admin",
-            password="password123",
-        )
+    def test_admin_can_add_venue(self):
+        self.client.force_login(self.admin)
 
         response = self.client.post(
             reverse("venue_add"),
             {
                 "name": "New Venue",
-                "address": "New Address",
                 "city": "Dhaka",
-                "capacity": 250,
-                "rental_fee": "8000.00",
-                "description": "New test venue",
+                "address": "New Address",
+                "capacity": 300,
+                "rental_fee": "7000.00",
+                "description": "New venue",
                 "is_available": True,
             },
         )
@@ -323,24 +331,45 @@ class VenueViewTest(TestCase):
             ).exists()
         )
 
-    def test_admin_can_edit_venue(self):
-        self.client.login(
-            username="admin",
-            password="password123",
+    def test_non_admin_cannot_add_venue(self):
+        self.client.force_login(self.organizer)
+
+        response = self.client.post(
+            reverse("venue_add"),
+            {
+                "name": "Unauthorized Venue",
+                "city": "Dhaka",
+                "address": "Address",
+                "capacity": 100,
+                "rental_fee": "5000.00",
+                "description": "Test",
+                "is_available": True,
+            },
         )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertFalse(
+            Venue.objects.filter(
+                name="Unauthorized Venue"
+            ).exists()
+        )
+
+    def test_admin_can_edit_venue(self):
+        self.client.force_login(self.admin)
 
         response = self.client.post(
             reverse(
                 "venue_edit",
-                kwargs={"pk": self.venue.pk},
+                kwargs={"pk": self.venue.pk}
             ),
             {
                 "name": "Updated Arena",
-                "address": "Updated Address",
                 "city": "Dhaka",
-                "capacity": 300,
-                "rental_fee": "9000.00",
-                "description": "Updated",
+                "address": "Updated Address",
+                "capacity": 200,
+                "rental_fee": "8000.00",
+                "description": "Updated description",
                 "is_available": True,
             },
         )
@@ -354,16 +383,20 @@ class VenueViewTest(TestCase):
             "Updated Arena"
         )
 
-    def test_admin_can_delete_venue(self):
-        self.client.login(
-            username="admin",
-            password="password123",
+        self.assertEqual(
+            self.venue.capacity,
+            200
         )
+
+    def test_admin_can_delete_venue(self):
+        self.client.force_login(self.admin)
+
+        venue_id = self.venue.pk
 
         response = self.client.post(
             reverse(
                 "venue_delete",
-                kwargs={"pk": self.venue.pk},
+                kwargs={"pk": venue_id}
             )
         )
 
@@ -371,20 +404,19 @@ class VenueViewTest(TestCase):
 
         self.assertFalse(
             Venue.objects.filter(
-                pk=self.venue.pk
+                pk=venue_id
             ).exists()
         )
 
     def test_non_admin_cannot_delete_venue(self):
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
+        self.client.force_login(self.organizer)
+
+        venue_id = self.venue.pk
 
         response = self.client.post(
             reverse(
                 "venue_delete",
-                kwargs={"pk": self.venue.pk},
+                kwargs={"pk": venue_id}
             )
         )
 
@@ -392,104 +424,95 @@ class VenueViewTest(TestCase):
 
         self.assertTrue(
             Venue.objects.filter(
-                pk=self.venue.pk
+                pk=venue_id
             ).exists()
         )
 
+    def test_venue_list_hides_east_west_university(self):
+        self.client.force_login(self.organizer)
 
-class VenueBookingViewTest(TestCase):
-
-    def setUp(self):
-        self.organizer = CustomUser.objects.create_user(
-            username="organizer",
-            password="password123",
-            role="organizer",
-        )
-
-        self.player = CustomUser.objects.create_user(
-            username="player",
-            password="password123",
-            role="player",
-        )
-
-        self.venue = Venue.objects.create(
-            name="Booking Venue",
-            city="Dhaka",
-            address="Dhaka",
-            capacity=100,
-            rental_fee=Decimal("5000.00"),
-            is_available=True,
-            requires_payment=False,
-        )
-
-    def test_booking_page_requires_login(self):
         response = self.client.get(
-            reverse(
-                "request_booking",
-                kwargs={"venue_id": self.venue.pk},
-            )
+            reverse("venue_list")
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            "Test Arena"
+        )
+
+        self.assertNotContains(
+            response,
+            "East West University"
+        )
 
     def test_organizer_can_open_booking_page(self):
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
+        self.client.force_login(self.organizer)
 
         response = self.client.get(
             reverse(
                 "request_booking",
-                kwargs={"venue_id": self.venue.pk},
+                kwargs={"venue_id": self.venue.pk}
             )
         )
 
         self.assertEqual(response.status_code, 200)
+
         self.assertTemplateUsed(
             response,
             "venues/request_booking.html"
         )
 
-    def test_non_organizer_cannot_request_booking(self):
-        self.client.login(
-            username="player",
-            password="password123",
-        )
+    def test_player_cannot_request_booking(self):
+        self.client.force_login(self.player)
 
-        response = self.client.post(
+        response = self.client.get(
             reverse(
                 "request_booking",
-                kwargs={"venue_id": self.venue.pk},
-            ),
-            {
-                "start_date": "2026-08-20",
-                "end_date": "2026-08-22",
-            },
+                kwargs={"venue_id": self.venue.pk}
+            )
         )
 
         self.assertEqual(response.status_code, 302)
 
-        self.assertFalse(
-            VenueBooking.objects.filter(
-                venue=self.venue
-            ).exists()
+        self.assertEqual(
+            response.url,
+            reverse("venue_list")
+        )
+
+    def test_hidden_venue_cannot_be_booked_directly(self):
+        self.client.force_login(self.organizer)
+
+        response = self.client.get(
+            reverse(
+                "request_booking",
+                kwargs={
+                    "venue_id": self.hidden_venue.pk
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(
+            response.url,
+            reverse("venue_list")
         )
 
     def test_organizer_can_request_booking(self):
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
+        self.client.force_login(self.organizer)
 
         response = self.client.post(
             reverse(
                 "request_booking",
-                kwargs={"venue_id": self.venue.pk},
+                kwargs={
+                    "venue_id": self.venue.pk
+                }
             ),
             {
-                "start_date": "2026-08-20",
-                "end_date": "2026-08-22",
+                "start_date": "2026-09-01",
+                "end_date": "2026-09-03",
             },
         )
 
@@ -499,35 +522,44 @@ class VenueBookingViewTest(TestCase):
             VenueBooking.objects.filter(
                 venue=self.venue,
                 booked_by=self.organizer,
+                start_date=date(2026, 9, 1),
+                end_date=date(2026, 9, 3),
             ).exists()
         )
 
-    def test_overlapping_booking_is_rejected(self):
+    def test_booking_conflict_is_rejected(self):
         VenueBooking.objects.create(
             venue=self.venue,
             booked_by=self.organizer,
-            start_date=date(2026, 8, 20),
-            end_date=date(2026, 8, 22),
+            start_date=date(2026, 9, 1),
+            end_date=date(2026, 9, 5),
             status="confirmed",
         )
 
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
+        self.client.force_login(self.other_organizer)
 
         response = self.client.post(
             reverse(
                 "request_booking",
-                kwargs={"venue_id": self.venue.pk},
+                kwargs={
+                    "venue_id": self.venue.pk
+                }
             ),
             {
-                "start_date": "2026-08-21",
-                "end_date": "2026-08-25",
+                "start_date": "2026-09-03",
+                "end_date": "2026-09-07",
             },
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "venues/request_booking.html"
+        )
 
         self.assertEqual(
             VenueBooking.objects.filter(
@@ -536,96 +568,206 @@ class VenueBookingViewTest(TestCase):
             1
         )
 
-    def test_payment_page_requires_login(self):
+    def test_payment_information_is_generated(self):
+        self.venue.requires_payment = True
+        self.venue.payment_amount = Decimal("5000.00")
+        self.venue.save()
+
+        self.client.force_login(self.organizer)
+
+        response = self.client.post(
+            reverse(
+                "request_booking",
+                kwargs={
+                    "venue_id": self.venue.pk
+                }
+            ),
+            {
+                "start_date": "2026-10-01",
+                "end_date": "2026-10-03",
+            },
+        )
+
+        booking = VenueBooking.objects.get(
+            venue=self.venue,
+            booked_by=self.organizer,
+        )
+
+        self.assertTrue(
+            booking.payment_required
+        )
+
+        self.assertEqual(
+            booking.payment_amount,
+            Decimal("5000.00")
+        )
+
+        self.assertTrue(
+            booking.payment_code
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302
+        )
+
+        self.assertEqual(
+            response.url,
+            reverse(
+                "venue_booking_payment",
+                kwargs={"pk": booking.pk}
+            )
+        )
+
+    def test_booking_owner_can_view_payment_slip(self):
+        self.venue.requires_payment = True
+        self.venue.payment_amount = Decimal("5000.00")
+        self.venue.save()
+
         booking = VenueBooking.objects.create(
             venue=self.venue,
             booked_by=self.organizer,
-            start_date=date(2026, 8, 20),
-            end_date=date(2026, 8, 22),
+            start_date=date(2026, 11, 1),
+            end_date=date(2026, 11, 3),
+            status="pending",
+            payment_required=True,
+            payment_amount=Decimal("5000.00"),
+            payment_code="AB123",
         )
+
+        self.client.force_login(self.organizer)
 
         response = self.client.get(
             reverse(
                 "venue_booking_payment",
-                kwargs={"pk": booking.pk},
+                kwargs={"pk": booking.pk}
             )
         )
 
-        self.assertEqual(response.status_code, 302)
-
-    def test_booking_owner_can_view_payment_page(self):
-        booking = VenueBooking.objects.create(
-            venue=self.venue,
-            booked_by=self.organizer,
-            start_date=date(2026, 8, 20),
-            end_date=date(2026, 8, 22),
+        self.assertEqual(
+            response.status_code,
+            200
         )
 
-        self.client.login(
-            username="organizer",
-            password="password123",
-        )
-
-        response = self.client.get(
-            reverse(
-                "venue_booking_payment",
-                kwargs={"pk": booking.pk},
-            )
-        )
-
-        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response,
             "venues/venue_booking_payment.html"
         )
 
-    def test_other_player_cannot_view_payment_page(self):
+    def test_other_organizer_cannot_view_payment_slip(self):
         booking = VenueBooking.objects.create(
             venue=self.venue,
             booked_by=self.organizer,
-            start_date=date(2026, 8, 20),
-            end_date=date(2026, 8, 22),
+            start_date=date(2026, 11, 10),
+            end_date=date(2026, 11, 12),
+            status="pending",
+            payment_required=True,
+            payment_amount=Decimal("5000.00"),
+            payment_code="XY789",
         )
 
-        self.client.login(
-            username="player",
-            password="password123",
+        self.client.force_login(
+            self.other_organizer
         )
 
         response = self.client.get(
             reverse(
                 "venue_booking_payment",
-                kwargs={"pk": booking.pk},
+                kwargs={"pk": booking.pk}
             )
         )
 
-        self.assertEqual(response.status_code, 302)
-
-    def test_admin_can_view_payment_page(self):
-        admin = CustomUser.objects.create_user(
-            username="admin",
-            password="password123",
-            role="admin",
+        self.assertEqual(
+            response.status_code,
+            302
         )
 
+        self.assertEqual(
+            response.url,
+            reverse("dashboard")
+        )
+
+    def test_admin_can_view_payment_slip(self):
         booking = VenueBooking.objects.create(
             venue=self.venue,
             booked_by=self.organizer,
-            start_date=date(2026, 8, 20),
-            end_date=date(2026, 8, 22),
+            start_date=date(2026, 12, 1),
+            end_date=date(2026, 12, 3),
+            status="pending",
+            payment_required=True,
+            payment_amount=Decimal("5000.00"),
+            payment_code="AD123",
         )
 
-        self.client.login(
-            username="admin",
-            password="password123",
-        )
+        self.client.force_login(self.admin)
 
         response = self.client.get(
             reverse(
                 "venue_booking_payment",
-                kwargs={"pk": booking.pk},
+                kwargs={"pk": booking.pk}
             )
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "venues/venue_booking_payment.html"
+        )
+
+    def test_booking_id_format(self):
+        booking = VenueBooking.objects.create(
+            venue=self.venue,
+            booked_by=self.organizer,
+            start_date=date(2027, 1, 1),
+            end_date=date(2027, 1, 3),
+            status="pending",
+        )
+
+        self.assertEqual(
+            booking.booking_id,
+            f"BK-{booking.pk:05d}"
+        )
+
+    def test_cancelled_booking_does_not_block_new_booking(self):
+        VenueBooking.objects.create(
+            venue=self.venue,
+            booked_by=self.organizer,
+            start_date=date(2027, 2, 1),
+            end_date=date(2027, 2, 5),
+            status="cancelled",
+        )
+
+        form = BookingRequestForm(
+            data={
+                "start_date": "2027-02-03",
+                "end_date": "2027-02-07",
+            },
+            venue=self.venue,
+        )
+
+        self.assertTrue(
+            form.is_valid(),
+            form.errors
+        )
+
+    def test_admin_delete_nonexistent_venue_returns_404(self):
+        self.client.force_login(
+            self.admin
+        )
+
+        response = self.client.post(
+            reverse(
+                "venue_delete",
+                kwargs={"pk": 99999}
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404
+        )
 
