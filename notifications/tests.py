@@ -35,4 +35,28 @@ class NotificationModelTest(TestCase):
             notification.is_read
         )
 
+ def test_notification_default_is_unread(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="New notification",
+        )
+
+        self.assertFalse(
+            notification.is_read
+        )
+
+    def test_notification_can_be_marked_as_read(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="You were approved!",
+        )
+
+        notification.is_read = True
+        notification.save()
+
+        notification.refresh_from_db()
+
+        self.assertTrue(
+            notification.is_read
+        )
 
