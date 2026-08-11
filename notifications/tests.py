@@ -239,3 +239,46 @@ def test_already_read_notification_remains_read(self):
             notification.is_read
         )
 
+ def test_all_unread_notifications_are_marked_read(self):
+        notification1 = Notification.objects.create(
+            user=self.user,
+            message="Notification 1",
+            is_read=False,
+        )
+
+        notification2 = Notification.objects.create(
+            user=self.user,
+            message="Notification 2",
+            is_read=False,
+        )
+
+        notification3 = Notification.objects.create(
+            user=self.user,
+            message="Notification 3",
+            is_read=False,
+        )
+
+        self.client.force_login(
+            self.user
+        )
+
+        self.client.get(
+            reverse("notification_list")
+        )
+
+        notification1.refresh_from_db()
+        notification2.refresh_from_db()
+        notification3.refresh_from_db()
+
+        self.assertTrue(
+            notification1.is_read
+        )
+
+        self.assertTrue(
+            notification2.is_read
+        )
+
+        self.assertTrue(
+            notification3.is_read
+        )
+
