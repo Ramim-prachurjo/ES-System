@@ -83,3 +83,18 @@ class NotificationModelTest(TestCase):
             "To testuser: You were approved! [read]"
         )
 
+ def test_long_message_is_truncated_in_str(self):
+        message = "A" * 100
+
+        notification = Notification.objects.create(
+            user=self.user,
+            message=message,
+        )
+
+        result = str(notification)
+
+        self.assertEqual(
+            result,
+            f"To testuser: {'A' * 40} [unread]"
+        )
+
