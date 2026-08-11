@@ -98,3 +98,27 @@ class NotificationModelTest(TestCase):
             f"To testuser: {'A' * 40} [unread]"
         )
 
+ def test_notifications_are_ordered_newest_first(self):
+        first = Notification.objects.create(
+            user=self.user,
+            message="First notification",
+        )
+
+        second = Notification.objects.create(
+            user=self.user,
+            message="Second notification",
+        )
+
+        notifications = Notification.objects.all()
+
+        self.assertEqual(
+            notifications.first(),
+            second
+        )
+
+        self.assertEqual(
+            notifications.last(),
+            first
+        )
+
+
