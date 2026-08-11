@@ -197,3 +197,24 @@ class NotificationViewTest(TestCase):
             notifications
         )
 
+ def test_visiting_notification_list_marks_unread_as_read(self):
+        notification = Notification.objects.create(
+            user=self.user,
+            message="Unread notification",
+            is_read=False,
+        )
+
+        self.client.force_login(
+            self.user
+        )
+
+        self.client.get(
+            reverse("notification_list")
+        )
+
+        notification.refresh_from_db()
+
+        self.assertTrue(
+            notification.is_read
+        )
+
