@@ -147,3 +147,53 @@ class NotificationViewTest(TestCase):
             302
         )
 
+ def test_logged_in_user_can_view_notifications(self):
+        self.client.force_login(
+            self.user
+        )
+
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "notifications/notification_list.html"
+        )
+
+    def test_user_only_sees_own_notifications(self):
+        own_notification = Notification.objects.create(
+            user=self.user,
+            message="Your notification",
+        )
+
+        other_notification = Notification.objects.create(
+            user=self.other_user,
+            message="Other user's notification",
+        )
+
+        self.client.force_login(
+            self.user
+        )
+
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        notifications = response.context["notifications"]
+
+        self.assertIn(
+            own_notification,
+            notifications
+        )
+
+        self.assertNotIn(
+            other_notification,
+            notifications
+        )
+
