@@ -17,6 +17,14 @@ def landing(request):
     return render(request, 'accounts/landing.html')
 
 
+def about(request):
+    return render(request, 'accounts/about.html')
+
+
+def services(request):
+    return render(request, 'accounts/services.html')
+
+
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
