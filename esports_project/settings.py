@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from urllib.parse import parse_qs, unquote, urlparse
 from dotenv import load_dotenv
 
@@ -104,8 +105,23 @@ WSGI_APPLICATION = 'esports_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Tests must never create or delete a database on Neon.  The current test
+# suite uses Django's model, form, and view test client, so an in-memory
+# SQLite database is both sufficient and dramatically faster.
+RUNNING_TESTS = 'test' in sys.argv
+
 database_url = os.getenv('DATABASE_URL')
-if database_url:
+if RUNNING_TESTS:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+    # Password hashing is deliberately expensive in production.  Tests create
+    # many users, so use Django's fast test-only hasher to keep feedback quick.
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+elif database_url:
     parsed_database_url = urlparse(database_url)
     database_query = parse_qs(parsed_database_url.query)
     DATABASES = {
@@ -164,7 +180,9 @@ STATICFILES_DIRS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# Tournament dates, registration cut-offs, and venue bookings are operated in
+# Bangladesh, so use the platform's business timezone rather than server UTC.
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 

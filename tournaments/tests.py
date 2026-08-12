@@ -122,7 +122,7 @@ class TournamentModelTest(TestCase):
         )
 
     def test_enrollment_status_closed_on_start_date(self):
-        self.tournament.start_date = date.today()
+        self.tournament.start_date = timezone.localdate()
         self.tournament.registration_deadline = None
         self.tournament.save()
 
