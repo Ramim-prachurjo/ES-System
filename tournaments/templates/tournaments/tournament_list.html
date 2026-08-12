@@ -12,9 +12,10 @@
   }
 
   .page-header h2 {
-    font-family: 'Cinzel', serif;
-    font-size: 24px;
-    color: #d9a8a8;
+    font-family: 'Syncopate', 'Rajdhani', sans-serif;
+    font-size: 23px;
+    color: #f0edff;
+    letter-spacing: -.05em;
   }
 
   .btn-create {
@@ -22,9 +23,9 @@
     border-radius: 20px;
     font-size: 12px;
     text-decoration: none;
-    background: rgba(217,168,168,0.12);
-    border: 1px solid rgba(217,168,168,0.3);
-    color: #d9a8a8;
+    background: linear-gradient(135deg,rgba(133,80,255,.86),rgba(74,148,226,.86));
+    border: 1px solid rgba(185,159,255,.42);
+    color: #fff;
     transition: 0.2s;
   }
 
@@ -37,8 +38,8 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(145deg,rgba(24,21,49,.88),rgba(15,23,40,.9));
+    border: 1px solid rgba(176,138,255,.18);
     border-radius: 12px;
     overflow: hidden;
   }
@@ -48,13 +49,13 @@
     padding: 10px 14px;
     font-size: 11px;
     text-transform: uppercase;
-    color: #6a5a5a;
+    color: #a69bbd;
     border-bottom: 1px solid rgba(255,255,255,0.07);
   }
 
   .data-table td {
     padding: 12px 14px;
-    color: #d0c0c0;
+    color: #ded8ee;
     border-bottom: 1px solid rgba(255,255,255,0.05);
   }
 
@@ -85,9 +86,9 @@
     padding: 4px 10px;
     border-radius: 6px;
     text-decoration: none;
-    border: 1px solid rgba(217,168,168,0.25);
-    background: rgba(217,168,168,0.08);
-    color: #d9a8a8;
+    border: 1px solid rgba(190,158,255,.32);
+    background: rgba(143,88,255,.13);
+    color: #d8c9ff;
     transition: 0.2s;
   }
 
@@ -105,7 +106,7 @@
 
 
 <div class="page-header">
-  <h2>🎮 Tournaments</h2>
+  <h2>Tournaments</h2>
 
   {% if user.role == 'organizer' %}
     <a href="{% url 'create_tournament' %}" class="btn-create">
