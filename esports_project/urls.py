@@ -10,5 +10,7 @@ urlpatterns = [
     path('teams/',           include('teams.urls')),
     path('tournaments/',     include('tournaments.urls')),
     path('notifications/',   include('notifications.urls')),   # NEW
+    path('about/',           account_views.about, name='about'),
+    path('services/',        account_views.services, name='services'),
     path('',                 account_views.landing, name='home'),
 ]
