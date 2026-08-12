@@ -1,5 +1,4 @@
 from django.test import TestCase
-
 from django.urls import reverse
 
 from accounts.models import CustomUser
@@ -35,7 +34,7 @@ class NotificationModelTest(TestCase):
             notification.is_read
         )
 
- def test_notification_default_is_unread(self):
+    def test_notification_default_is_unread(self):
         notification = Notification.objects.create(
             user=self.user,
             message="New notification",
@@ -59,7 +58,8 @@ class NotificationModelTest(TestCase):
         self.assertTrue(
             notification.is_read
         )
-  def test_notification_str_unread(self):
+
+    def test_notification_str_unread(self):
         notification = Notification.objects.create(
             user=self.user,
             message="You were approved!",
@@ -83,7 +83,7 @@ class NotificationModelTest(TestCase):
             "To testuser: You were approved! [read]"
         )
 
- def test_long_message_is_truncated_in_str(self):
+    def test_long_message_is_truncated_in_str(self):
         message = "A" * 100
 
         notification = Notification.objects.create(
@@ -98,7 +98,7 @@ class NotificationModelTest(TestCase):
             f"To testuser: {'A' * 40} [unread]"
         )
 
- def test_notifications_are_ordered_newest_first(self):
+    def test_notifications_are_ordered_newest_first(self):
         first = Notification.objects.create(
             user=self.user,
             message="First notification",
@@ -147,7 +147,7 @@ class NotificationViewTest(TestCase):
             302
         )
 
- def test_logged_in_user_can_view_notifications(self):
+    def test_logged_in_user_can_view_notifications(self):
         self.client.force_login(
             self.user
         )
@@ -197,7 +197,7 @@ class NotificationViewTest(TestCase):
             notifications
         )
 
- def test_visiting_notification_list_marks_unread_as_read(self):
+    def test_visiting_notification_list_marks_unread_as_read(self):
         notification = Notification.objects.create(
             user=self.user,
             message="Unread notification",
@@ -218,7 +218,7 @@ class NotificationViewTest(TestCase):
             notification.is_read
         )
 
-def test_already_read_notification_remains_read(self):
+    def test_already_read_notification_remains_read(self):
         notification = Notification.objects.create(
             user=self.user,
             message="Already read",
@@ -239,7 +239,7 @@ def test_already_read_notification_remains_read(self):
             notification.is_read
         )
 
- def test_all_unread_notifications_are_marked_read(self):
+    def test_all_unread_notifications_are_marked_read(self):
         notification1 = Notification.objects.create(
             user=self.user,
             message="Notification 1",
@@ -282,7 +282,7 @@ def test_already_read_notification_remains_read(self):
             notification3.is_read
         )
 
- def test_notification_list_contains_user_notifications(self):
+    def test_notification_list_contains_user_notifications(self):
         Notification.objects.create(
             user=self.user,
             message="Tournament approved!",
