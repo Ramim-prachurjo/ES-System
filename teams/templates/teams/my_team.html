@@ -3,351 +3,150 @@
 
 {% block content %}
 <style>
-  .page-header { margin-bottom: 28px; }
-  .page-header h1 {
-    font-family: 'Syncopate', 'Rajdhani', sans-serif;
-    font-size: 26px;
-    color: #d9a8a8;
-    letter-spacing: 0.06em;
+  .my-team-page { max-width: 1120px; margin: 0 auto; padding-bottom: 28px; }
+  .squad-hero {
+    position: relative; overflow: hidden; min-height: 235px; margin: -4px 0 26px; padding: 34px;
+    display: flex; align-items: flex-end; border: 1px solid rgba(88, 242, 209, .24); border-radius: 18px;
+    background: linear-gradient(90deg, rgba(5, 16, 19, .95) 0%, rgba(5, 16, 19, .68) 47%, rgba(5, 16, 19, .25)),
+      url('https://res.cloudinary.com/i4p3gnjs/image/upload/myteam') center / cover no-repeat, #0c1a1b;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, .28);
   }
-  .page-header p { color: #a89a9a; font-size: 14px; margin-top: 6px; }
+  .squad-hero::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(120deg, transparent 50%, rgba(99, 255, 214, .14)); }
+  .hero-content { position: relative; z-index: 1; max-width: 590px; }
+  .eyebrow { color: #73f6d8; font: 700 10px 'Syncopate', sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+  .squad-hero h1 { margin: 9px 0; color: #f3ffff; font: 700 clamp(25px, 4vw, 42px) 'Syncopate', sans-serif; letter-spacing: .025em; line-height: 1.12; }
+  .squad-hero p { max-width: 490px; color: #c3dcda; font: 500 15px/1.55 'Rajdhani', sans-serif; }
+  .hero-count { margin-top: 18px; display: inline-flex; gap: 9px; align-items: center; padding: 8px 13px; border: 1px solid rgba(115, 246, 216, .28); border-radius: 999px; background: rgba(3, 14, 16, .62); color: #d6f9f0; font: 600 12px 'Rajdhani', sans-serif; }
+  .hero-count b { color: #73f6d8; font-size: 16px; }
 
-  .team-section {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 14px;
-    padding: 24px 28px;
-    margin-bottom: 28px;
-    max-width: 780px;
-  }
+  .team-stack { display: grid; gap: 22px; }
+  .team-card { overflow: hidden; border: 1px solid rgba(255, 255, 255, .10); border-radius: 16px; background: rgba(12, 23, 26, .82); box-shadow: 0 13px 30px rgba(0, 0, 0, .18); }
+  .team-card-top { padding: 22px 25px 19px; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .team-card-top h2 { color: #f2ffff; font: 700 clamp(19px, 3vw, 27px) 'Rajdhani', sans-serif; letter-spacing: .04em; }
+  .captain-line { margin-top: 4px; color: #8da9a8; font: 500 13px 'Rajdhani', sans-serif; }
+  .captain-line strong { color: #d8f4ee; font-weight: 700; }
+  .game-badge { flex: 0 0 auto; padding: 7px 11px; border-radius: 7px; font: 700 10px 'Syncopate', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+  .game-badge.valorant { color: #ffb6c0; border: 1px solid rgba(255, 70, 85, .46); background: rgba(255, 70, 85, .14); }
+  .game-badge.pubg { color: #ffd58a; border: 1px solid rgba(255, 181, 62, .42); background: rgba(255, 181, 62, .12); }
+  .team-overview { display: grid; grid-template-columns: minmax(200px, 1.4fr) minmax(190px, 1fr); gap: 24px; padding: 20px 25px; background: rgba(0,0,0,.13); }
+  .metric-label { color: #86a6a5; font: 700 10px 'Syncopate', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+  .metric-value { margin-top: 6px; color: #ecffff; font: 700 25px 'Rajdhani', sans-serif; line-height: 1; }
+  .metric-value small { color: #92aaa9; font: 600 13px 'Rajdhani', sans-serif; }
+  .status-open { color: #77f2c9; } .status-full { color: #f6b6a6; }
+  .capacity { align-self: end; }
+  .capacity-meta { display: flex; justify-content: space-between; color: #b7d2d0; font: 600 12px 'Rajdhani', sans-serif; }
+  .capacity-bar { height: 7px; margin-top: 8px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.10); }
+  .capacity-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #34c9b2, #75f2d2); box-shadow: 0 0 14px rgba(78, 240, 207, .35); }
+  .capacity-fill.full { background: linear-gradient(90deg, #6f8080, #9fb0af); box-shadow: none; }
 
-  .team-section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  .roster { padding: 8px 25px 20px; }
+  .roster-heading { margin: 12px 0 10px; color: #e7fbf7; font: 700 12px 'Syncopate', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+  .members-table { width: 100%; border-collapse: collapse; }
+  .members-table th { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,.08); color: #70908e; font: 700 10px 'Syncopate', sans-serif; text-align: left; letter-spacing: .08em; text-transform: uppercase; }
+  .members-table td { padding: 13px 8px; border-bottom: 1px solid rgba(255,255,255,.055); color: #bbd2d0; font: 500 14px 'Rajdhani', sans-serif; }
+  .members-table tr:last-child td { border-bottom: 0; }
+  .member-no { color: #668281; }
+  .member-link { color: #f1ffff; font-weight: 700; text-decoration: none; transition: color .18s; }
+  .member-link:hover { color: #75f2d2; }
+  .role-tag { display: inline-block; padding: 4px 8px; border: 1px solid rgba(101, 221, 199, .25); border-radius: 999px; color: #9aeeda; background: rgba(64, 194, 170, .10); font: 700 10px 'Rajdhani', sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .role-tag.captain { color: #ffe19a; border-color: rgba(255, 196, 84, .30); background: rgba(255, 196, 84, .10); }
+  .muted { color: #78918f; }
+  .action-cell { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .team-action { padding: 6px 10px; border-radius: 6px; font: 700 11px 'Rajdhani', sans-serif; letter-spacing: .04em; cursor: pointer; text-decoration: none; transition: transform .16s, filter .16s; }
+  .team-action:hover { transform: translateY(-1px); filter: brightness(1.12); }
+  .btn-remove { border: 1px solid rgba(255, 112, 112, .42); background: rgba(203, 59, 59, .13); color: #ffb3b3; }
+  .btn-leave { border: 1px solid rgba(255, 189, 83, .42); background: rgba(255, 170, 49, .12); color: #ffd28c; }
+  .btn-transfer { border: 1px solid rgba(96, 221, 202, .38); background: rgba(67, 187, 167, .12); color: #9ef2df; }
+  .captain-notice { margin: 0 25px 18px; padding: 12px 14px; border: 1px solid rgba(255, 204, 101, .22); border-radius: 9px; background: rgba(255, 184, 60, .07); color: #ead19a; font: 500 13px/1.45 'Rajdhani', sans-serif; }
+  .team-code-box { margin: 0 25px 22px; padding: 13px 15px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px dashed rgba(99, 230, 205, .31); border-radius: 9px; background: rgba(40, 166, 147, .07); }
+  .team-code-label { color: #8caead; font: 700 10px 'Syncopate', sans-serif; letter-spacing: .09em; text-transform: uppercase; }
+  .team-code-box strong { display: block; margin-top: 5px; color: #82f3d6; font: 700 19px 'Rajdhani', sans-serif; letter-spacing: .14em; }
+  .team-code-help { max-width: 280px; color: #91aaa8; font: 500 12px/1.35 'Rajdhani', sans-serif; }
+  .lone-action { margin: 0 25px 21px; }
+  .empty-team { padding: 58px 24px; text-align: center; border: 1px solid rgba(115, 246, 216, .18); border-radius: 16px; background: rgba(12, 23, 26, .78); }
+  .empty-team .empty-mark { display: block; color: #75f2d2; font: 700 35px 'Syncopate', sans-serif; }
+  .empty-team h2 { margin-top: 13px; color: #eafffb; font: 700 24px 'Rajdhani', sans-serif; }
+  .empty-team p { margin-top: 5px; color: #91adab; font: 500 14px 'Rajdhani', sans-serif; }
+  .btn-browse { display: inline-block; margin-top: 20px; padding: 11px 17px; border-radius: 7px; background: linear-gradient(135deg, #31c9af, #118d83); color: #efffff; font: 700 12px 'Syncopate', sans-serif; letter-spacing: .05em; text-decoration: none; box-shadow: 0 8px 20px rgba(21, 174, 151, .22); }
 
-  .team-title {
-    font-family: 'Syncopate', 'Rajdhani', sans-serif;
-    font-size: 20px;
-    color: #f0d8d8;
+  @media (max-width: 650px) {
+    .squad-hero { min-height: 210px; padding: 25px 20px; background-position: 60% center; }
+    .team-card-top, .team-overview { padding-left: 17px; padding-right: 17px; }
+    .team-overview { grid-template-columns: 1fr; gap: 18px; }
+    .roster { padding-left: 17px; padding-right: 17px; overflow-x: auto; }
+    .members-table { min-width: 580px; }
+    .captain-notice, .team-code-box, .lone-action { margin-left: 17px; margin-right: 17px; }
+    .team-code-box { align-items: flex-start; flex-direction: column; }
+    .team-card-top { gap: 10px; }
   }
-
-  .game-badge {
-    font-size: 11px;
-    padding: 3px 12px;
-    border-radius: 20px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .game-badge.valorant { background: rgba(255,70,85,0.2); color: #ff8c95; border: 1px solid rgba(255,70,85,0.3); }
-  .game-badge.pubg     { background: rgba(255,165,0,0.2); color: #ffc56e; border: 1px solid rgba(255,165,0,0.3); }
-
-  .team-meta-row {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-    font-size: 13px;
-    color: #a89a9a;
-  }
-  .team-meta-row span { color: #e0cccc; font-weight: 500; }
-
-  .slot-bar-wrap { margin-bottom: 20px; }
-  .slot-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #a89a9a;
-    margin-bottom: 5px;
-  }
-  .slot-bar-bg {
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .slot-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #c46060, #d9a8a8);
-  }
-  .slot-bar-fill.full { background: linear-gradient(90deg, #555, #777); }
-
-  .members-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  .members-table th {
-    text-align: left;
-    color: #7a6a6a;
-    font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  .members-table td {
-    padding: 10px 10px;
-    color: #e0cccc;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    vertical-align: middle;
-  }
-  .members-table tr:last-child td { border-bottom: none; }
-
-  .role-tag {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(217,168,168,0.15);
-    color: #d9a8a8;
-    border: 1px solid rgba(217,168,168,0.25);
-  }
-  .role-tag.captain {
-    background: rgba(255,200,80,0.15);
-    color: #ffd580;
-    border-color: rgba(255,200,80,0.3);
-  }
-
-  /* ── action buttons ── */
-  .btn-remove, .btn-leave, .btn-transfer {
-    padding: 5px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-family: 'Raleway', sans-serif;
-    cursor: pointer;
-    transition: background 0.2s;
-    border: none;
-    display: inline-block;
-    text-decoration: none;
-  }
-
-  .btn-remove {
-    border: 1px solid rgba(220,80,80,0.35);
-    background: rgba(220,80,80,0.15);
-    color: #ff9999;
-  }
-  .btn-remove:hover { background: rgba(220,80,80,0.3); }
-
-  /* leave button — amber tone so it's distinct from remove */
-  .btn-leave {
-    border: 1px solid rgba(255,165,0,0.35);
-    background: rgba(255,165,0,0.12);
-    color: #ffc56e;
-  }
-  .btn-leave:hover { background: rgba(255,165,0,0.25); }
-
-  /* transfer captaincy — subtle teal */
-  .btn-transfer {
-    border: 1px solid rgba(100,200,180,0.3);
-    background: rgba(100,200,180,0.1);
-    color: #7ee8d0;
-    font-size: 11px;
-    padding: 4px 10px;
-  }
-  .btn-transfer:hover { background: rgba(100,200,180,0.2); }
-
-  .action-cell { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-
-  /* captain warning box shown when captain tries to leave */
-  .captain-notice {
-    margin-top: 14px;
-    padding: 10px 14px;
-    background: rgba(255,200,80,0.08);
-    border: 1px solid rgba(255,200,80,0.2);
-    border-radius: 8px;
-    font-size: 12px;
-    color: #ffd580;
-  }
-
-  .team-code-box {
-    margin-top: 18px;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.04);
-    border: 1px dashed rgba(255,255,255,0.12);
-    border-radius: 8px;
-    font-size: 13px;
-    color: #a89a9a;
-  }
-  .team-code-box strong {
-    color: #d9a8a8;
-    font-family: 'Rajdhani', monospace;
-    letter-spacing: 0.1em;
-    font-size: 16px;
-    margin-left: 8px;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #a89a9a;
-    font-size: 15px;
-  }
-  .empty-state span { font-size: 36px; display: block; margin-bottom: 12px; }
-
-  .btn-browse {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 10px 24px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #c46060, #a04040);
-    color: #fff;
-    font-family: 'Raleway', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s;
-  }
-  .btn-browse:hover { background: linear-gradient(135deg, #d47070, #b05050); }
 </style>
 
-<div class="page-header">
-  <h1>My Team</h1>
-  <p>View and manage the teams you are enrolled in.</p>
-</div>
-
-{% if team_data %}
-  {% for item in team_data %}
-  <div class="team-section">
-    <div class="team-section-header">
-      <div class="team-title">{{ item.team.name }}</div>
-      <span class="game-badge {{ item.team.game }}">{{ item.team.get_game_display }}</span>
+<main class="my-team-page">
+  <section class="squad-hero" aria-labelledby="my-team-title">
+    <div class="hero-content">
+      <div class="eyebrow">Competitive roster</div>
+      <h1 id="my-team-title">MY TEAM</h1>
+      <p>Your command center for team members, captaincy, and match-ready roster space.</p>
+      <div class="hero-count"><b>{{ team_data|length }}</b> active squad{{ team_data|length|pluralize }}</div>
     </div>
+  </section>
 
-    <div class="team-meta-row">
-      <div>Captain: <span>{{ item.team.captain.username }}</span></div>
-      <div>Members: <span>{{ item.current }} / {{ item.max }}</span></div>
-      <div>Status:
-        {% if item.current >= item.max %}
-          <span style="color:#aaa;">Full</span>
-        {% else %}
-          <span style="color:#7ee8a2;">Open</span>
-        {% endif %}
-      </div>
-    </div>
+  {% if team_data %}
+    <section class="team-stack" aria-label="Your teams">
+      {% for item in team_data %}
+      <article class="team-card">
+        <header class="team-card-top">
+          <div>
+            <h2>{{ item.team.name }}</h2>
+            <p class="captain-line">Captain <strong>{{ item.team.captain.username }}</strong></p>
+          </div>
+          <span class="game-badge {{ item.team.game }}">{{ item.team.get_game_display }}</span>
+        </header>
 
-    <!-- Slot bar -->
-    <div class="slot-bar-wrap">
-      <div class="slot-label">
-        <span>Team capacity</span>
-        <span>{{ item.current }} / {{ item.max }}</span>
-      </div>
-      <div class="slot-bar-bg">
-        <div class="slot-bar-fill {% if item.current >= item.max %}full{% endif %}"
-             style="width: {% widthratio item.current item.max 100 %}%">
-        </div>
-      </div>
-    </div>
+        <section class="team-overview">
+          <div>
+            <div class="metric-label">Roster status</div>
+            <div class="metric-value {% if item.current >= item.max %}status-full{% else %}status-open{% endif %}">{% if item.current >= item.max %}Full{% else %}Open{% endif %}</div>
+          </div>
+          <div class="capacity">
+            <div class="capacity-meta"><span>Team capacity</span><span>{{ item.current }} / {{ item.max }}</span></div>
+            <div class="capacity-bar"><div class="capacity-fill {% if item.current >= item.max %}full{% endif %}" style="width: {% widthratio item.current item.max 100 %}%"></div></div>
+          </div>
+        </section>
 
-    <!-- Members table -->
-    <table class="members-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Username</th>
-          <th>Role</th>
-          <th>Joined</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for ms in item.members %}
-        <tr>
-          <td style="color:#6a5a5a;">{{ forloop.counter }}</td>
-          <td>
-            <a href="{% url 'view_player_profile' ms.user.pk %}"
-               style="color:#e0cccc; text-decoration:none;">
-              {{ ms.user.username }}
-            </a>
-          </td>
-          <td>
-            {% if ms.user == item.team.captain %}
-              <span class="role-tag captain">Captain</span>
-            {% else %}
-              <span class="role-tag">Member</span>
-            {% endif %}
-          </td>
-          <td style="color:#6a5a5a;">{{ ms.joined_at|date:"M d, Y" }}</td>
-          <td>
-            <div class="action-cell">
+        <section class="roster">
+          <h3 class="roster-heading">Roster</h3>
+          <table class="members-table">
+            <thead><tr><th>#</th><th>Player</th><th>Role</th><th>Joined</th><th>Management</th></tr></thead>
+            <tbody>
+              {% for ms in item.members %}
+              <tr>
+                <td class="member-no">{{ forloop.counter|stringformat:"02d" }}</td>
+                <td><a class="member-link" href="{% url 'view_player_profile' ms.user.pk %}">{{ ms.user.username }}</a></td>
+                <td>{% if ms.user == item.team.captain %}<span class="role-tag captain">Captain</span>{% else %}<span class="role-tag">Member</span>{% endif %}</td>
+                <td class="muted">{{ ms.joined_at|date:"M d, Y" }}</td>
+                <td><div class="action-cell">
+                  {% if item.is_captain and ms.user != item.team.captain %}
+                    <form method="post" action="{% url 'remove_member' item.team.pk ms.user.pk %}" onsubmit="return confirm('Remove {{ ms.user.username }} from the team?')">{% csrf_token %}<button type="submit" class="team-action btn-remove">Remove</button></form>
+                    <a class="team-action btn-transfer" href="{% url 'transfer_captain' item.team.pk ms.user.pk %}" onclick="return confirm('Transfer captaincy to {{ ms.user.username }}? You will become a regular member.')">Make captain</a>
+                  {% elif not item.is_captain and ms.user == request.user %}
+                    <form method="post" action="{% url 'leave_team' item.team.pk %}" onsubmit="return confirm('Are you sure you want to leave {{ item.team.name }}?')">{% csrf_token %}<button type="submit" class="team-action btn-leave">Leave team</button></form>
+                  {% else %}<span class="muted">—</span>{% endif %}
+                </div></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
 
-              {% if item.is_captain and ms.user != item.team.captain %}
-                {# ── captain sees: Remove + Make Captain buttons for each member ── #}
-                <form method="POST" action="{% url 'remove_member' item.team.pk ms.user.pk %}"
-                      onsubmit="return confirm('Remove {{ ms.user.username }} from the team?')">
-                  {% csrf_token %}
-                  <button type="submit" class="btn-remove">Remove</button>
-                </form>
-
-                <a href="{% url 'transfer_captain' item.team.pk ms.user.pk %}"
-                   class="btn-transfer"
-                   onclick="return confirm('Transfer captaincy to {{ ms.user.username }}? You will become a regular member.')">
-                  Make Captain
-                </a>
-
-              {% elif not item.is_captain and ms.user == request.user %}
-                {# ── non-captain member sees Leave button only on their own row ── #}
-                <form method="POST" action="{% url 'leave_team' item.team.pk %}"
-                      onsubmit="return confirm('Are you sure you want to leave {{ item.team.name }}?')">
-                  {% csrf_token %}
-                  <button type="submit" class="btn-leave">Leave Team</button>
-                </form>
-
-              {% else %}
-                <span style="color:#4a3a3a; font-size:12px;">—</span>
-              {% endif %}
-
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    {# ── Captain notice: explains they must transfer before leaving ── #}
-    {% if item.is_captain and item.current > 1 %}
-    <div class="captain-notice">
-      You are the captain. To leave this team, first transfer captaincy to another member using the
-      "Make Captain" button above, then you can leave from your new member row.
-    </div>
-    {% endif %}
-
-    {# ── Captain leaving alone: if only member, show disband option ── #}
-    {% if item.is_captain and item.current == 1 %}
-    <div style="margin-top: 14px;">
-      <form method="POST" action="{% url 'leave_team' item.team.pk %}"
-            onsubmit="return confirm('You are the only member. Leaving will disband {{ item.team.name }}. Continue?')">
-        {% csrf_token %}
-        <button type="submit" class="btn-leave">Disband Team</button>
-      </form>
-    </div>
-    {% endif %}
-
-    <!-- Team code — captain only -->
-    {% if item.is_captain %}
-    <div class="team-code-box">
-      Team Code: <strong>{{ item.team.team_code }}</strong>
-      <span style="font-size:12px; margin-left:12px; color:#6a5a5a;">Share this with players to let them join directly.</span>
-    </div>
-    {% endif %}
-
-  </div>
-  {% endfor %}
-
-{% else %}
-  <div class="empty-state">
-    <span>🏚</span>
-    You are not enrolled in any team yet.
-    <br>
-    <a href="{% url 'browse_teams' %}" class="btn-browse">Browse Teams</a>
-  </div>
-{% endif %}
-
+        {% if item.is_captain and item.current > 1 %}<aside class="captain-notice">You are the captain. Transfer captaincy to another player before you leave this team.</aside>{% endif %}
+        {% if item.is_captain and item.current == 1 %}<div class="lone-action"><form method="post" action="{% url 'leave_team' item.team.pk %}" onsubmit="return confirm('You are the only member. Leaving will disband {{ item.team.name }}. Continue?')">{% csrf_token %}<button type="submit" class="team-action btn-leave">Disband team</button></form></div>{% endif %}
+        {% if item.is_captain %}<div class="team-code-box"><div><div class="team-code-label">Private team code</div><strong>{{ item.team.team_code }}</strong></div><p class="team-code-help">Share this code only with players you want to join your squad.</p></div>{% endif %}
+      </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="empty-team"><span class="empty-mark">◇</span><h2>No squad yet</h2><p>Explore teams and find a roster that is ready to compete.</p><a href="{% url 'browse_teams' %}" class="btn-browse">Browse teams</a></section>
+  {% endif %}
+</main>
 {% endblock %}
-
