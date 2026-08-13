@@ -122,7 +122,7 @@
               {% for ms in item.members %}
               <tr>
                 <td class="member-no">{{ forloop.counter|stringformat:"02d" }}</td>
-                <td><a class="member-link" href="{% url 'view_player_profile' ms.user.pk %}">{{ ms.user.username }}</a></td>
+                <td><span class="member-link">{{ ms.user.username }}</span></td>
                 <td>{% if ms.user == item.team.captain %}<span class="role-tag captain">Captain</span>{% else %}<span class="role-tag">Member</span>{% endif %}</td>
                 <td class="muted">{{ ms.joined_at|date:"M d, Y" }}</td>
                 <td><div class="action-cell">
@@ -139,9 +139,9 @@
           </table>
         </section>
 
+        <div class="lone-action"><a class="team-action btn-transfer" href="{% url 'team_detail' item.team.pk %}">View team</a></div>
         {% if item.is_captain and item.current > 1 %}<aside class="captain-notice">You are the captain. Transfer captaincy to another player before you leave this team.</aside>{% endif %}
         {% if item.is_captain and item.current == 1 %}<div class="lone-action"><form method="post" action="{% url 'leave_team' item.team.pk %}" onsubmit="return confirm('You are the only member. Leaving will disband {{ item.team.name }}. Continue?')">{% csrf_token %}<button type="submit" class="team-action btn-leave">Disband team</button></form></div>{% endif %}
-        {% if item.is_captain %}<div class="team-code-box"><div><div class="team-code-label">Private team code</div><strong>{{ item.team.team_code }}</strong></div><p class="team-code-help">Share this code only with players you want to join your squad.</p></div>{% endif %}
       </article>
       {% endfor %}
     </section>

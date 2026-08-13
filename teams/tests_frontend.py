@@ -207,10 +207,11 @@ class TeamsFrontendTests(TestCase):
         # Valorant maximum = 5.
         self.assertContains(response, "5")
 
-    def test_captain_sees_team_code_in_my_team(self):
+    def test_captain_sees_view_team_link_in_my_team(self):
         response = self.client.get(reverse("my_team"))
 
-        self.assertContains(response, self.team.team_code)
+        self.assertContains(response, reverse("team_detail", kwargs={"pk": self.team.pk}))
+        self.assertNotContains(response, self.team.team_code)
 
     # ==========================================================
     # MY INVITES FRONTEND
