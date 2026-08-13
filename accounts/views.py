@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .forms import RegisterForm, LoginForm, PlayerProfileForm, OrganizerProfileForm
 from .models import PlayerProfile, CustomUser
@@ -132,9 +134,25 @@ def view_player_profile(request, user_id):
         role='player'
     )
     profile = PlayerProfile.objects.filter(user=target_user).first()
+    next_url = request.GET.get('next')
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = reverse('team_list')
+
+    # A captain should never be offered an invite button for a player who is
+    # already a member of that captain's team.
+    from teams.models import TeamMembership
+    invitable_teams = []
+    if request.user.role == 'player':
+        for team in request.user.captained_teams.all():
+            is_member = TeamMembership.objects.filter(team=team, user=target_user).exists()
+            if not team.is_full() and not is_member and target_user != request.user:
+                invitable_teams.append(team)
+
     return render(request, 'accounts/view_player_profile.html', {
         'target_user': target_user,
         'profile': profile,
+        'invitable_teams': invitable_teams,
+        'back_url': next_url,
     })
 
 

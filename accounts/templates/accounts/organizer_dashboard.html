@@ -17,7 +17,6 @@
   .organizer-button:hover { transform: translateY(-2px); }
   .organizer-button.primary { display: inline-flex; align-items: center; background: linear-gradient(135deg,#ed942d,#b95613); color: white; box-shadow: 0 12px 28px rgba(187,80,12,.35); }
   .organizer-button.secondary { display: inline-flex; align-items: center; border-color: rgba(255,221,168,.3); background: rgba(255,255,255,.045); color: #fff2dc; }
-  .organizer-mark { position: absolute; right: 58px; bottom: 44px; color: rgba(255,208,133,.62); font-family: 'Syncopate', sans-serif; font-size: 52px; font-weight: 700; letter-spacing: -.15em; transform: rotate(-10deg); }
   .hub-heading { margin: 39px 0 16px; }
   .hub-heading h2 { color: #fff1dc; font-family: 'Syncopate', sans-serif; font-size: 17px; letter-spacing: .06em; }
   .hub-heading p { margin-top: 6px; color: #a99a87; font-size: 13px; }
@@ -33,7 +32,7 @@
   .organizer-card p { max-width: 260px; color: #baae9f; font-size: 13px; line-height: 1.5; }
   .organizer-card .arrow { position: absolute; right: 20px; bottom: 18px; color: #ffd297; font-size: 20px; }
   @media (max-width: 900px) { .organizer-card.primary,.organizer-card.medium { grid-column: span 6; } .organizer-card.small { grid-column: span 4; } }
-  @media (max-width: 640px) { .organizer-hero { min-height: 0; padding: 34px 25px; } .organizer-mark { display:none; } .organizer-card.primary,.organizer-card.medium,.organizer-card.small { grid-column: span 12; } }
+  @media (max-width: 640px) { .organizer-hero { min-height: 0; padding: 34px 25px; } .organizer-card.primary,.organizer-card.medium,.organizer-card.small { grid-column: span 12; } }
 </style>
 
 <main class="organizer-hub">
@@ -42,7 +41,6 @@
     <h1 class="organizer-title">Create events.<br><span>Set the standard.</span></h1>
     <p class="organizer-copy">Plan esports tournaments, secure the right venues, and manage every competitive experience from one place.</p>
     <div class="organizer-actions"><a href="{% url 'create_tournament' %}" class="organizer-button primary">Create tournament</a><a href="{% url 'tournament_list' %}" class="organizer-button secondary">View tournaments</a></div>
-    <div class="organizer-mark" aria-hidden="true">ORG</div>
   </section>
 
   <div class="hub-heading"><h2>EVENT MANAGEMENT</h2><p>Choose the next action for your tournament operation.</p></div>
