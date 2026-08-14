@@ -206,6 +206,23 @@ LOGIN_REDIRECT_URL = '/'  # need override with custom logic
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+# Password-reset emails use Resend through Django's built-in SMTP backend.
+# Keep the key in local .env / Vercel variables only, never in source code.
+if RUNNING_TESTS:
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+elif os.getenv('RESEND_API_KEY'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.resend.com'
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = 'resend'
+    EMAIL_HOST_PASSWORD = os.getenv('RESEND_API_KEY')
+    EMAIL_USE_TLS = True
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = os.getenv('RESEND_FROM_EMAIL', 'MARKSMEN_es <onboarding@resend.dev>')
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
+
 
 import cloudinary
 
