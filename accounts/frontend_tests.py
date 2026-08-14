@@ -133,6 +133,19 @@ class ChatbotTest(TestCase):
         response = self.client.post(reverse("chatbot_response"), data='{}', content_type="application/json")
         self.assertEqual(response.status_code, 302)
 
+    def test_chatbot_uses_exact_platform_workflow_for_tournament_application(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("chatbot_response"),
+            data='{"message":"How can I apply for a tournament?"}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["source"], "platform_help")
+        self.assertIn("captain", response.json()["answer"])
+        self.assertIn("Valorant teams need 5", response.json()["answer"])
+
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"})
     @patch("accounts.views.urlrequest.urlopen")
     def test_chatbot_returns_gemini_text_without_exposing_key(self, mock_urlopen):

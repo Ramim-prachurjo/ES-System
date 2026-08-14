@@ -16,6 +16,38 @@ from urllib import error, request as urlrequest
 
 logger = logging.getLogger(__name__)
 
+
+def _platform_help_answer(question):
+    """Reliable answers for core MARKSMEN_es journeys; avoids AI guessing."""
+    text = question.lower().replace('0', 'o')
+    if ('forgot' in text or 'reset' in text) and ('pass' in text or 'password' in text):
+        return (
+            'To reset a forgotten password: open the Login page, select “Forgot password?”, '
+            'enter your account email, then open the secure reset link sent to that email.'
+        )
+    if 'change' in text and ('pass' in text or 'password' in text):
+        return (
+            'To change your password while logged in: open the profile icon in the top-right corner, '
+            'select “Change Password”, enter your current password and new password, then select “Update Password”.'
+        )
+    if ('apply' in text or 'application' in text) and ('tournament' in text or 'tournment' in text):
+        return (
+            'To apply for a tournament: sign in as a player and become captain of a team. Open Discover Tournaments, '
+            'open an active tournament that supports your team’s game, then select Apply beside your full team. '
+            'Valorant teams need 5 members and PUBG teams need 4 members. Your application will be pending until the organizer reviews it.'
+        )
+    if 'venue' in text and ('book' in text or 'reserve' in text):
+        return (
+            'Organizers can book a venue while creating a tournament: select “Need venue: Yes”, choose the date, '
+            'select an available venue, and follow the bKash payment slip instructions. The reservation remains pending until admin approval.'
+        )
+    if ('create' in text or 'make' in text) and 'team' in text:
+        return (
+            'To create a team: open Create Team, choose PUBG or Valorant, enter the team details, and submit. '
+            'You become the captain. Team capacity is 4 for PUBG and 5 for Valorant.'
+        )
+    return None
+
 from .forms import RegisterForm, LoginForm, PlayerProfileForm, OrganizerProfileForm
 from .models import PlayerProfile, CustomUser
 
@@ -48,6 +80,10 @@ def chatbot_response(request):
 
     if not question or len(question) > 700:
         return JsonResponse({'error': 'Please ask one question of up to 700 characters.'}, status=400)
+
+    fixed_answer = _platform_help_answer(question)
+    if fixed_answer:
+        return JsonResponse({'answer': fixed_answer, 'source': 'platform_help'})
 
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
