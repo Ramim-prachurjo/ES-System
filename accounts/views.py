@@ -10,8 +10,11 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 import json
+import logging
 import os
 from urllib import error, request as urlrequest
+
+logger = logging.getLogger(__name__)
 
 from .forms import RegisterForm, LoginForm, PlayerProfileForm, OrganizerProfileForm
 from .models import PlayerProfile, CustomUser
@@ -62,7 +65,7 @@ def chatbot_response(request):
         'contents': [{'role': 'user', 'parts': [{'text': question}]}],
         'generationConfig': {'maxOutputTokens': 350, 'temperature': 0.35},
     }).encode('utf-8')
-    model = os.getenv('GEMINI_MODEL', 'gemini-flash-latest')
+    model = os.getenv('GEMINI_MODEL', 'gemini-3.5-flash')
     gemini_request = urlrequest.Request(
         f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
         data=body,
@@ -76,7 +79,11 @@ def chatbot_response(request):
         if not answer:
             raise ValueError('No response text returned')
         return JsonResponse({'answer': answer})
-    except (error.HTTPError, error.URLError, KeyError, IndexError, ValueError, json.JSONDecodeError):
+    except error.HTTPError as exc:
+        logger.warning('Gemini chatbot request failed with HTTP status %s.', exc.code)
+        return JsonResponse({'error': 'The assistant is temporarily unavailable. Please try again shortly.'}, status=503)
+    except (error.URLError, KeyError, IndexError, ValueError, json.JSONDecodeError):
+        logger.warning('Gemini chatbot request failed without an API response.')
         return JsonResponse({'error': 'The assistant is temporarily unavailable. Please try again shortly.'}, status=503)
 
 
