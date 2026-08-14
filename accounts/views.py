@@ -6,6 +6,12 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+import json
+import os
+from urllib import error, request as urlrequest
 
 from .forms import RegisterForm, LoginForm, PlayerProfileForm, OrganizerProfileForm
 from .models import PlayerProfile, CustomUser
@@ -25,6 +31,53 @@ def about(request):
 
 def services(request):
     return render(request, 'accounts/services.html')
+
+
+@login_required
+@require_POST
+@csrf_protect
+def chatbot_response(request):
+    """Send a short platform-help question to Gemini without exposing its key."""
+    try:
+        question = str(json.loads(request.body).get('message', '')).strip()
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'error': 'Please send a valid question.'}, status=400)
+
+    if not question or len(question) > 700:
+        return JsonResponse({'error': 'Please ask one question of up to 700 characters.'}, status=400)
+
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        return JsonResponse({'error': 'The assistant is not configured yet.'}, status=503)
+
+    instructions = (
+        'You are MARKSMEN_es Assistant for an esports tournament management platform. '
+        'Answer only about accounts, player teams, tournament discovery and applications, '
+        'organizer tournaments, venues and bookings, notifications, and password/account help. '
+        'Be friendly, brief, accurate, and use simple language. Do not invent live tournament, '
+        'payment, booking, account, or personal data.'
+    )
+    body = json.dumps({
+        'systemInstruction': {'parts': [{'text': instructions}]},
+        'contents': [{'role': 'user', 'parts': [{'text': question}]}],
+        'generationConfig': {'maxOutputTokens': 350, 'temperature': 0.35},
+    }).encode('utf-8')
+    model = os.getenv('GEMINI_MODEL', 'gemini-flash-latest')
+    gemini_request = urlrequest.Request(
+        f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+        data=body,
+        headers={'Content-Type': 'application/json', 'x-goog-api-key': api_key},
+        method='POST',
+    )
+    try:
+        with urlrequest.urlopen(gemini_request, timeout=18) as response:
+            result = json.loads(response.read().decode('utf-8'))
+        answer = ''.join(part.get('text', '') for part in result['candidates'][0]['content']['parts']).strip()
+        if not answer:
+            raise ValueError('No response text returned')
+        return JsonResponse({'answer': answer})
+    except (error.HTTPError, error.URLError, KeyError, IndexError, ValueError, json.JSONDecodeError):
+        return JsonResponse({'error': 'The assistant is temporarily unavailable. Please try again shortly.'}, status=503)
 
 
 def register_view(request):
