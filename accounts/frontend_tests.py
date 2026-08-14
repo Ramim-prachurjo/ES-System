@@ -9,6 +9,8 @@ from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
+import os
 
 
 User = get_user_model()
@@ -119,3 +121,32 @@ class PasswordResetFrontendTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("Reset your MARKSMEN_es password", mail.outbox[0].subject)
         self.assertIn("password-reset/", mail.outbox[0].body)
+
+
+class ChatbotTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="chat_user", password="StrongPassword123!", role="player"
+        )
+
+    def test_chatbot_requires_login(self):
+        response = self.client.post(reverse("chatbot_response"), data='{}', content_type="application/json")
+        self.assertEqual(response.status_code, 302)
+
+    @patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"})
+    @patch("accounts.views.urlrequest.urlopen")
+    def test_chatbot_returns_gemini_text_without_exposing_key(self, mock_urlopen):
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = (
+            b'{"candidates":[{"content":{"parts":[{"text":"Use My Team to manage your roster."}]}}]}'
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("chatbot_response"),
+            data='{"message":"How do I manage my team?"}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["answer"], "Use My Team to manage your roster.")
+        self.assertNotIn("test-key", response.content.decode())
