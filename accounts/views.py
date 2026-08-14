@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_protect
 import json
 import logging
 import os
+import re
 from urllib import error, request as urlrequest
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,17 @@ def _platform_help_answer(question):
         return (
             'To change your password while logged in: open the profile icon in the top-right corner, '
             'select “Change Password”, enter your current password and new password, then select “Update Password”.'
+        )
+    if ('update' in text or 'edit' in text) and ('profile' in text or 'account' in text):
+        return (
+            'To update your profile: open the profile icon in the top-right corner and select “My Profile”. '
+            'Update your name, email, phone number, address, and player in-game role or bio if shown. Then select the profile update/save button.'
+        )
+    if 'my team' in text or ('team' in text and ('roster' in text or 'members' in text)):
+        return (
+            'Open “My Team” from the player navigation to see your current squad. Select “View team” to see the roster. '
+            'There you can use “View profile” for members. Captains can view the team code, invite players, remove members, or transfer captaincy. '
+            'Regular members can leave their team from the team page.'
         )
     if ('apply' in text or 'application' in text) and ('tournament' in text or 'tournment' in text):
         return (
@@ -93,8 +105,8 @@ def chatbot_response(request):
         'You are MARKSMEN_es Assistant for an esports tournament management platform. '
         'Answer only about accounts, player teams, tournament discovery and applications, '
         'organizer tournaments, venues and bookings, notifications, and password/account help. '
-        'Be friendly, brief, accurate, and use simple language. Do not invent live tournament, '
-        'payment, booking, account, or personal data.'
+        'Be friendly, brief, accurate, and use simple language. Use plain text only: no Markdown, asterisks, headings, '
+        'or invented menu names. Do not invent live tournament, payment, booking, account, or personal data.'
     )
     body = json.dumps({
         'systemInstruction': {'parts': [{'text': instructions}]},
@@ -112,6 +124,7 @@ def chatbot_response(request):
         with urlrequest.urlopen(gemini_request, timeout=18) as response:
             result = json.loads(response.read().decode('utf-8'))
         answer = ''.join(part.get('text', '') for part in result['candidates'][0]['content']['parts']).strip()
+        answer = re.sub(r'(?m)^\s*[-*]+\s*', '', answer).replace('**', '').replace('`', '')
         if not answer:
             raise ValueError('No response text returned')
         return JsonResponse({'answer': answer})

@@ -10,6 +10,7 @@ from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
+import json
 import os
 
 
@@ -146,6 +147,22 @@ class ChatbotTest(TestCase):
         self.assertIn("captain", response.json()["answer"])
         self.assertIn("Valorant teams need 5", response.json()["answer"])
 
+    def test_chatbot_uses_exact_profile_and_my_team_workflows(self):
+        self.client.force_login(self.user)
+        cases = (
+            ('How do I update profile?', 'My Profile'),
+            ('My team', 'View team'),
+        )
+        for message, expected_text in cases:
+            with self.subTest(message=message):
+                response = self.client.post(
+                    reverse("chatbot_response"),
+                    data=json.dumps({"message": message}),
+                    content_type="application/json",
+                )
+                self.assertEqual(response.json()["source"], "platform_help")
+                self.assertIn(expected_text, response.json()["answer"])
+
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"})
     @patch("accounts.views.urlrequest.urlopen")
     def test_chatbot_returns_gemini_text_without_exposing_key(self, mock_urlopen):
@@ -156,7 +173,7 @@ class ChatbotTest(TestCase):
 
         response = self.client.post(
             reverse("chatbot_response"),
-            data='{"message":"How do I manage my team?"}',
+            data='{"message":"What is esports?"}',
             content_type="application/json",
         )
 
