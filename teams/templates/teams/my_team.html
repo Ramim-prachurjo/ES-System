@@ -69,6 +69,14 @@
   .empty-team p { margin-top: 5px; color: #91adab; font: 500 14px 'Rajdhani', sans-serif; }
   .btn-browse { display: inline-block; margin-top: 20px; padding: 11px 17px; border-radius: 7px; background: linear-gradient(135deg, #31c9af, #118d83); color: #efffff; font: 700 12px 'Syncopate', sans-serif; letter-spacing: .05em; text-decoration: none; box-shadow: 0 8px 20px rgba(21, 174, 151, .22); }
 
+  body.player-theme .squad-hero { border-color: rgba(188,145,255,.28); background: linear-gradient(90deg,rgba(12,9,30,.95),rgba(12,9,30,.68) 47%,rgba(12,9,30,.25)), url('https://res.cloudinary.com/i4p3gnjs/image/upload/v1786649805/myteam_o9efm0.jpg') center / cover no-repeat, #110d28; }
+  body.player-theme .eyebrow, body.player-theme .hero-count b { color:#c9a8ff; }
+  body.player-theme .hero-count { border-color:rgba(190,147,255,.30); background:rgba(17,10,40,.66); color:#ece4ff; }
+  body.player-theme .team-card { background:rgba(20,19,43,.88); border-color:rgba(196,170,255,.17); }
+  body.player-theme .team-card-top h2, body.player-theme .member-link { color:#f1ecff; }
+  body.player-theme .captain-line, body.player-theme .metric-label, body.player-theme .capacity-meta, body.player-theme .muted { color:#aaa1bd; }
+  body.player-theme .capacity-fill { background:linear-gradient(90deg,#7040d2,#bd91ff); box-shadow:0 0 14px rgba(159,104,255,.34); }
+  body.player-theme .btn-transfer { border-color:rgba(193,158,255,.38); background:rgba(140,87,255,.14); color:#dcc7ff; }
   @media (max-width: 650px) {
     .squad-hero { min-height: 210px; padding: 25px 20px; background-position: 60% center; }
     .team-card-top, .team-overview { padding-left: 17px; padding-right: 17px; }
@@ -139,7 +147,7 @@
           </table>
         </section>
 
-        <div class="lone-action"><a class="team-action btn-transfer" href="{% url 'team_detail' item.team.pk %}">View team</a></div>
+        <div class="lone-action"><a class="team-action btn-transfer" href="{% url 'team_detail' item.team.pk %}?next={% url 'my_team' %}">View team</a></div>
         {% if item.is_captain and item.current > 1 %}<aside class="captain-notice">You are the captain. Transfer captaincy to another player before you leave this team.</aside>{% endif %}
         {% if item.is_captain and item.current == 1 %}<div class="lone-action"><form method="post" action="{% url 'leave_team' item.team.pk %}" onsubmit="return confirm('You are the only member. Leaving will disband {{ item.team.name }}. Continue?')">{% csrf_token %}<button type="submit" class="team-action btn-leave">Disband team</button></form></div>{% endif %}
       </article>

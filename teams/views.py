@@ -7,6 +7,8 @@ from .forms import CreateTeamForm, InvitePlayerForm, JoinByCodeForm
 from .models import Team, TeamMembership, TeamInvite, JoinRequest
 from notifications.models import Notification
 from django.db import IntegrityError
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 User = get_user_model()
 
@@ -56,12 +58,16 @@ def team_detail(request, pk):
     members = team.memberships.select_related('user')
     invites = team.invites.filter(status='pending').select_related('invited_user')
     invite_form = InvitePlayerForm()
+    back_url = request.GET.get('next')
+    if not url_has_allowed_host_and_scheme(back_url, {request.get_host()}):
+        back_url = reverse('browse_teams') if request.user.role == 'player' else reverse('team_list')
 
     return render(request, 'teams/team_detail.html', {
         'team':        team,
         'members':     members,
         'invites':     invites,
         'invite_form': invite_form,
+        'back_url':    back_url,
     })
 
 
