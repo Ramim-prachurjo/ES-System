@@ -6,6 +6,7 @@ browser or external database.
 """
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
@@ -98,3 +99,23 @@ class AuthenticatedAccountsFrontendTest(TestCase):
 
         self.assertRedirects(response, reverse("login"))
         self.assertNotIn("_auth_user_id", self.client.session)
+
+
+class PasswordResetFrontendTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="reset_player",
+            email="reset@example.com",
+            password="StrongPassword123!",
+            role="player",
+        )
+
+    def test_reset_request_sends_a_secure_email_for_known_account(self):
+        response = self.client.post(reverse("password_reset"), {
+            "email": self.user.email,
+        })
+
+        self.assertRedirects(response, reverse("password_reset_done"))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Reset your MARKSMEN_es password", mail.outbox[0].subject)
+        self.assertIn("password-reset/", mail.outbox[0].body)
