@@ -225,20 +225,6 @@ def my_invites(request):
 
 
 @login_required
-def leave_team(request, team_id):
-    team = get_object_or_404(Team, pk=team_id)
-    membership = get_object_or_404(TeamMembership, user=request.user, team=team)
-
-    if request.user == team.captain:
-        messages.error(request, "You are the captain. Transfer captaincy before leaving.")
-        return redirect('team_detail', pk=team_id)
-
-    membership.delete()
-    messages.success(request, f"You left {team.name}.")
-    return redirect('team_list')
-
-
-@login_required
 def transfer_captain(request, team_id, user_id):
     team        = get_object_or_404(Team, pk=team_id)
     new_captain = get_object_or_404(User, pk=user_id)
