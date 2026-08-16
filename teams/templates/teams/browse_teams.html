@@ -7,34 +7,19 @@
     position: relative;
     isolation: isolate;
   }
-  .browse-page::before {
-    content: '';
-    position: fixed;
-    z-index: -2;
-    inset: 0;
-    pointer-events: none;
-    opacity: .25;
-    background: url('https://res.cloudinary.com/i4p3gnjs/image/upload/a_-90,f_webp/v1786888331/Allteams_raqkrh.webp') center / cover no-repeat;
-  }
-  .browse-page::after {
-    content: '';
-    position: fixed;
-    z-index: -1;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(115deg, rgba(12, 7, 25, .94), rgba(18, 9, 37, .84));
-  }
   .browse-hero {
     position: relative;
     overflow: hidden;
-    min-height: 220px;
+    min-height: 310px;
     display: flex;
     align-items: end;
     margin: -6px 0 28px;
     padding: 30px;
     border: 1px solid rgba(151, 101, 255, .32);
     border-radius: 18px;
-    background: linear-gradient(100deg, rgba(25, 13, 48, .94), rgba(56, 24, 91, .58));
+    background:
+      linear-gradient(90deg, rgba(12, 7, 25, .94) 0%, rgba(20, 9, 42, .72) 46%, rgba(17, 8, 32, .20) 100%),
+      url('https://res.cloudinary.com/i4p3gnjs/image/upload/a_-90,f_webp/v1786888331/Allteams_raqkrh.webp') center / cover no-repeat;
     box-shadow: 0 18px 44px rgba(5, 0, 18, .32);
   }
   .browse-hero::after {
@@ -60,6 +45,15 @@
     color: #d1c4ea;
     font-size: 14px;
     margin-top: 6px;
+  }
+  .page-header .punchline {
+    margin: 0 0 10px;
+    color: #d6a7ff;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
   }
 
   /* ── Join by code box ── */
@@ -290,7 +284,7 @@
   .empty-state span { font-size: 36px; display: block; margin-bottom: 12px; }
 
   @media (max-width: 640px) {
-    .browse-hero { min-height: 190px; padding: 24px 20px; }
+    .browse-hero { min-height: 245px; padding: 24px 20px; background-position: 58% center; }
     .page-header h1 { font-size: 23px; }
     .join-code-bar, .filter-bar { padding: 14px; }
     .join-code-input { max-width: none; }
@@ -302,6 +296,7 @@
 <!-- Page header -->
 <div class="browse-hero">
   <div class="page-header">
+    <p class="punchline">Find your squad. Own the battlefield.</p>
     <h1>Browse Teams</h1>
     <p>Find your squad, build chemistry, and send a request to the captain.</p>
   </div>
