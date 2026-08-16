@@ -1,0 +1,21 @@
+from django.test import TestCase
+from django.urls import reverse
+
+from accounts.models import CustomUser
+from notifications.models import Notification
+
+
+class NotificationIntegrationTests(TestCase):
+
+    def setUp(self):
+        self.player = CustomUser.objects.create_user(
+            username="player",
+            password="StrongPass123!",
+            role="player",
+        )
+
+        self.other_player = CustomUser.objects.create_user(
+            username="other",
+            password="StrongPass123!",
+            role="player",
+        )
