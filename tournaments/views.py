@@ -157,6 +157,10 @@ def apply_to_tournament(request, tournament_id, team_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id, status='active')
     team       = get_object_or_404(Team, pk=team_id, captain=request.user)
 
+    if tournament.enrollment_status == 'closed':
+        messages.error(request, "Tournament enrollment is closed.")
+        return redirect('tournament_detail', pk=tournament_id)
+
     if team.game not in tournament.get_games_list():
         messages.error(request, f"This tournament does not support {team.game.title()}.")
         return redirect('tournament_detail', pk=tournament_id)

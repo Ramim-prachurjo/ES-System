@@ -31,6 +31,7 @@
 
   .pill.pending   { background: rgba(204,170,68,0.15); color:#ccaa44; }
   .pill.active    { background: rgba(80,160,220,0.15); color:#88aaee; }
+  .pill.closed    { background: rgba(220,80,80,0.15); color:#ff9999; }
   .pill.ongoing   { background: rgba(100,200,180,0.15); color:#7ee8d0; }
   .pill.completed { background: rgba(136,204,136,0.15); color:#88cc88; }
   .pill.cancelled { background: rgba(220,80,80,0.15); color:#ff9999; }
@@ -154,8 +155,8 @@
     {% if user.role == 'organizer' %}<p class="organizer-eyebrow">Tournament command center</p>{% endif %}
     <h2>
       {{ tournament.name }}
-      <span class="pill {{ tournament.status }}">
-        {{ tournament.get_status_display }}
+      <span class="pill {{ tournament.display_status }}">
+        {{ tournament.display_status|title }}
       </span>
     </h2>
   </div>
@@ -166,6 +167,8 @@
       <div class="info-item">Game <span>{{ tournament.get_games_display }}</span></div>
       <div class="info-item">Venue <span>{{ tournament.venue.name|default:"TBA" }}</span></div>
       <div class="info-item">Dates <span>{{ tournament.start_date|date:"d M Y" }} → {{ tournament.end_date|date:"d M Y" }}</span></div>
+      <div class="info-item">Enrollment closes <span>{% if tournament.registration_deadline %}{{ tournament.registration_deadline|date:"d M Y, h:i A" }}{% else %}At tournament start{% endif %}</span></div>
+      <div class="info-item">Venue address <span>{% if tournament.venue %}{{ tournament.venue.address|default:"Address to be announced" }}{% else %}{{ tournament.venue_address|default:"Address to be announced" }}{% endif %}</span></div>
       <div class="info-item">Entry Fee <span>${{ tournament.entry_fee }}</span></div>
       <div class="info-item">Prize Pool <span>${{ tournament.prize_pool }}</span></div>
       <div class="info-item">Max Teams <span>{{ tournament.max_teams }}</span></div>

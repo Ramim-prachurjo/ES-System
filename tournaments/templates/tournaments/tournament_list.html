@@ -139,11 +139,7 @@
       <td>${{ t.prize_pool }}</td>
 
       <td>
-        {% if user.role == 'organizer' %}
-          <span class="pill {{ t.enrollment_status }}">{{ t.enrollment_status|title }}</span>
-        {% else %}
-          <span class="pill {{ t.status }}">{{ t.get_status_display }}</span>
-        {% endif %}
+        <span class="pill {{ t.display_status }}">{{ t.display_status|title }}</span>
       </td>
 
       <td>

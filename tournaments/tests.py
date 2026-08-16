@@ -153,6 +153,19 @@ class TournamentModelTest(TestCase):
             "active"
         )
 
+    def test_display_status_uses_closed_enrollment_for_approved_tournament(self):
+        self.tournament.status = "active"
+        self.tournament.registration_deadline = timezone.now() - timedelta(days=1)
+        self.tournament.save()
+
+        self.assertEqual(self.tournament.display_status, "closed")
+
+    def test_display_status_keeps_pending_approval_visible(self):
+        self.tournament.registration_deadline = timezone.now() - timedelta(days=1)
+        self.tournament.save()
+
+        self.assertEqual(self.tournament.display_status, "pending")
+
     def test_tournament_string_representation(self):
         self.assertEqual(
             str(self.tournament),
