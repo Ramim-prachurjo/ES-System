@@ -36,3 +36,35 @@ class NotificationIntegrationTests(TestCase):
         self.assertFalse(
             notification.is_read
         )
+  # IT-NOT-02
+    def test_notification_list_shows_user_notifications(self):
+        Notification.objects.create(
+            user=self.player,
+            message="Player notification"
+        )
+
+        Notification.objects.create(
+            user=self.other_player,
+            message="Other notification"
+        )
+
+        self.client.force_login(self.player)
+
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertContains(
+            response,
+            "Player notification"
+        )
+
+        self.assertNotContains(
+            response,
+            "Other notification"
+        )
