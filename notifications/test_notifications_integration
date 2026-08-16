@@ -90,3 +90,37 @@ class NotificationIntegrationTests(TestCase):
         self.assertTrue(
             notification.is_read
         )
+ # IT-NOT-04
+    def test_team_invitation_creates_notification(self):
+        from teams.models import Team, TeamInvite, TeamMembership
+
+        captain = self.player
+
+        team = Team.objects.create(
+            name="Alpha",
+            game="valorant",
+            captain=captain,
+        )
+
+        TeamMembership.objects.create(
+            user=captain,
+            team=team
+        )
+
+        self.client.force_login(captain)
+
+        self.client.post(
+            reverse(
+                "invite_player",
+                args=[team.pk]
+            ),
+            {
+                "username": self.other_player.username
+            }
+        )
+
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.other_player
+            ).exists()
+        )
