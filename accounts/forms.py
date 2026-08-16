@@ -20,6 +20,18 @@ class RegisterForm(UserCreationForm):
         model  = CustomUser
         fields = ['username', 'email', 'phone', 'address', 'role', 'password1', 'password2']
 
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        if CustomUser.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('This username is already registered.')
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if CustomUser.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('This email address is already registered.')
+        return email
+
 
 class LoginForm(AuthenticationForm):
     pass

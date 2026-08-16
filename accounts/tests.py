@@ -267,7 +267,8 @@ class AccountWorkflowTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.player = User.objects.create_user(
-            username="existing_player", password=cls.password, role="player"
+            username="existing_player", email="existing_player@example.com",
+            password=cls.password, role="player"
         )
         cls.organizer = User.objects.create_user(
             username="existing_organizer", password=cls.password, role="organizer"
@@ -276,7 +277,7 @@ class AccountWorkflowTest(TestCase):
             username="existing_admin", password=cls.password, role="admin"
         )
 
-    def test_player_registration_creates_profile_and_signs_user_in(self):
+    def test_player_registration_creates_profile_shows_confirmation_and_redirects_to_login(self):
         response = self.client.post(reverse("register"), {
             "username": "new_player",
             "email": "newplayer@example.com",
@@ -287,11 +288,15 @@ class AccountWorkflowTest(TestCase):
             "password2": self.password,
         })
 
-        self.assertRedirects(response, reverse("dashboard"))
+        self.assertRedirects(response, reverse("login"))
         new_user = User.objects.get(username="new_player")
         self.assertEqual(new_user.role, "player")
         self.assertTrue(PlayerProfile.objects.filter(user=new_user).exists())
-        self.assertEqual(str(self.client.session.get("_auth_user_id")), str(new_user.pk))
+        self.assertNotEqual(new_user.password, self.password)
+        self.assertTrue(new_user.check_password(self.password))
+        self.assertIsNone(self.client.session.get("_auth_user_id"))
+        messages = list(response.wsgi_request._messages)
+        self.assertTrue(any("Registration successful" in str(message) for message in messages))
 
     def test_organizer_registration_does_not_create_player_profile(self):
         response = self.client.post(reverse("register"), {
@@ -304,10 +309,36 @@ class AccountWorkflowTest(TestCase):
             "password2": self.password,
         })
 
-        self.assertRedirects(response, reverse("dashboard"))
+        self.assertRedirects(response, reverse("login"))
         new_user = User.objects.get(username="new_organizer")
         self.assertEqual(new_user.role, "organizer")
         self.assertFalse(PlayerProfile.objects.filter(user=new_user).exists())
+        self.assertIsNone(self.client.session.get("_auth_user_id"))
+
+    def test_registration_rejects_duplicate_email(self):
+        response = self.client.post(reverse("register"), {
+            "username": "another_user",
+            "email": "existing_player@example.com",
+            "role": "player",
+            "password1": self.password,
+            "password2": self.password,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This email address is already registered.")
+        self.assertFalse(User.objects.filter(username="another_user").exists())
+
+    def test_registration_rejects_duplicate_username(self):
+        response = self.client.post(reverse("register"), {
+            "username": "EXISTING_PLAYER",
+            "email": "unique@example.com",
+            "role": "player",
+            "password1": self.password,
+            "password2": self.password,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This username is already registered.")
 
     def test_invalid_registration_stays_on_register_page(self):
         response = self.client.post(reverse("register"), {
