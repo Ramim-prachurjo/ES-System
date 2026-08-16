@@ -129,10 +129,23 @@
     text-decoration: none;
     font-size: 13px;
   }
+
+  .organizer-view{max-width:1120px}
+  .organizer-view .header{margin-bottom:20px;padding:28px 30px;border:1px solid rgba(255,196,111,.28);border-radius:18px;background:linear-gradient(120deg,#2d1c0e,#17201d);box-shadow:0 16px 38px rgba(0,0,0,.2)}
+  .organizer-view .header h2{margin:0;color:#fff2d8;font-family:'Cinzel',serif;font-size:28px;line-height:1.25}
+  .organizer-view .card{padding:24px 26px;border-color:rgba(255,196,111,.18);border-radius:16px;background:linear-gradient(145deg,rgba(42,30,18,.92),rgba(20,25,23,.94))}
+  .organizer-view .info-item{padding:15px;background:rgba(24,27,24,.72);color:#c8ad82}
+  .organizer-view .info-item span{color:#fff0d1;font-weight:600}
+  .organizer-view .section-title{color:#f3c77e;font-family:'Cinzel',serif;font-size:15px}
+  .organizer-view .data-table th{color:#c8ad82;background:rgba(255,196,111,.08)}
+  .organizer-view .data-table td{color:#f0e2ca}
+  .organizer-view .approve{color:#9ee4b6;font-weight:700}.organizer-view .reject{color:#f0a4a4;font-weight:700}
+  .organizer-view .back-btn{background:rgba(224,143,39,.16);border-color:rgba(255,196,111,.36);color:#ffdda5}
+  @media(max-width:640px){.organizer-view .header{padding:22px 19px}.organizer-view .header h2{font-size:22px}.organizer-view .card{padding:18px 15px;overflow-x:auto}.organizer-view .info-grid{grid-template-columns:1fr}.organizer-view .data-table{min-width:620px}}
 </style>
 
 
-<div class="container">
+<div class="container {% if user.role == 'organizer' %}organizer-view{% endif %}">
 
   <!-- HEADER -->
   <div class="header">
@@ -192,7 +205,7 @@
             <span style="font-size:12px; padding:5px 12px; border-radius:6px;
                          background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.25);
                          color:#ff9999;">
-              ⚠ Incomplete — needs {{ item.max }} members
+              Incomplete — needs {{ item.max }} members
             </span>
           {% endif %}
         </p>

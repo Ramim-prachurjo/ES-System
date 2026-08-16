@@ -25,7 +25,7 @@ class AccountsIntegrationTests(TestCase):
             self.player_data
         )
 
-        self.assertRedirects(response, reverse("dashboard"))
+        self.assertRedirects(response, reverse("login"))
 
         user = CustomUser.objects.get(username="player1")
 
@@ -34,6 +34,11 @@ class AccountsIntegrationTests(TestCase):
         self.assertTrue(
             PlayerProfile.objects.filter(user=user).exists()
         )
+        self.assertTrue(user.check_password(self.player_data["password1"]))
+        self.assertTrue(any(
+            "Registration successful" in str(message)
+            for message in response.wsgi_request._messages
+        ))
 
     # IT-ACC-02
     def test_organizer_registration_creates_organizer(self):
@@ -49,7 +54,7 @@ class AccountsIntegrationTests(TestCase):
             data
         )
 
-        self.assertRedirects(response, reverse("dashboard"))
+        self.assertRedirects(response, reverse("login"))
 
         user = CustomUser.objects.get(username="organizer1")
 
@@ -59,13 +64,13 @@ class AccountsIntegrationTests(TestCase):
         )
 
     # IT-ACC-03
-    def test_registered_player_is_logged_in(self):
+    def test_registered_player_is_not_logged_in_until_login(self):
         self.client.post(
             reverse("register"),
             self.player_data
         )
 
-        self.assertTrue(self.client.session.get("_auth_user_id"))
+        self.assertIsNone(self.client.session.get("_auth_user_id"))
 
     # IT-ACC-04
     def test_player_login_redirects_to_dashboard(self):
