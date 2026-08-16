@@ -18,4 +18,21 @@ class NotificationIntegrationTests(TestCase):
             username="other",
             password="StrongPass123!",
             role="player",
+
+        )
+
+         # IT-NOT-01
+    def test_notification_is_created_for_user(self):
+        notification = Notification.objects.create(
+            user=self.player,
+            message="Test notification"
+        )
+
+        self.assertEqual(
+            notification.user,
+            self.player
+        )
+
+        self.assertFalse(
+            notification.is_read
         )
