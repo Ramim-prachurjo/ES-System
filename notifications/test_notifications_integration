@@ -1,0 +1,160 @@
+from django.test import TestCase
+from django.urls import reverse
+
+from accounts.models import CustomUser
+from notifications.models import Notification
+
+
+class NotificationIntegrationTests(TestCase):
+
+    def setUp(self):
+        self.player = CustomUser.objects.create_user(
+            username="player",
+            password="StrongPass123!",
+            role="player",
+        )
+
+        self.other_player = CustomUser.objects.create_user(
+            username="other",
+            password="StrongPass123!",
+            role="player",
+
+        )
+
+         # IT-NOT-01
+    def test_notification_is_created_for_user(self):
+        notification = Notification.objects.create(
+            user=self.player,
+            message="Test notification"
+        )
+
+        self.assertEqual(
+            notification.user,
+            self.player
+        )
+
+        self.assertFalse(
+            notification.is_read
+        )
+  # IT-NOT-02
+    def test_notification_list_shows_user_notifications(self):
+        Notification.objects.create(
+            user=self.player,
+            message="Player notification"
+        )
+
+        Notification.objects.create(
+            user=self.other_player,
+            message="Other notification"
+        )
+
+        self.client.force_login(self.player)
+
+        response = self.client.get(
+            reverse("notification_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertContains(
+            response,
+            "Player notification"
+        )
+
+        self.assertNotContains(
+            response,
+            "Other notification"
+        )
+# IT-NOT-03
+    def test_visiting_notification_list_marks_notifications_read(self):
+        notification = Notification.objects.create(
+            user=self.player,
+            message="Unread message"
+        )
+
+        self.assertFalse(
+            notification.is_read
+        )
+
+        self.client.force_login(self.player)
+
+        self.client.get(
+            reverse("notification_list")
+        )
+
+        notification.refresh_from_db()
+
+        self.assertTrue(
+            notification.is_read
+        )
+ # IT-NOT-04
+    def test_team_invitation_creates_notification(self):
+        from teams.models import Team, TeamInvite, TeamMembership
+
+        captain = self.player
+
+        team = Team.objects.create(
+            name="Alpha",
+            game="valorant",
+            captain=captain,
+        )
+
+        TeamMembership.objects.create(
+            user=captain,
+            team=team
+        )
+
+        self.client.force_login(captain)
+
+        self.client.post(
+            reverse(
+                "invite_player",
+                args=[team.pk]
+            ),
+            {
+                "username": self.other_player.username
+            }
+        )
+
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.other_player
+            ).exists()
+        )
+# IT-NOT-05
+    def test_join_request_creates_captain_notification(self):
+        from teams.models import Team, TeamMembership
+
+        team = Team.objects.create(
+            name="Alpha",
+            game="valorant",
+            captain=self.player,
+        )
+
+        TeamMembership.objects.create(
+            user=self.player,
+            team=team
+        )
+
+        self.client.force_login(self.other_player)
+
+        self.client.post(
+            reverse(
+                "request_to_join",
+                args=[team.pk]
+            )
+        )
+
+        notification = Notification.objects.filter(
+            user=self.player
+        ).first()
+
+        self.assertIsNotNone(notification)
+
+        self.assertIn(
+            self.other_player.username,
+            notification.message
+        )
