@@ -130,13 +130,15 @@
     font-size: 13px;
   }
 
-  .organizer-view{max-width:1120px}
+  .organizer-view{max-width:1120px;font-family:'Rajdhani',sans-serif}
   .organizer-view .header{margin-bottom:20px;padding:28px 30px;border:1px solid rgba(255,196,111,.28);border-radius:18px;background:linear-gradient(120deg,#2d1c0e,#17201d);box-shadow:0 16px 38px rgba(0,0,0,.2)}
-  .organizer-view .header h2{margin:0;color:#fff2d8;font-family:'Cinzel',serif;font-size:28px;line-height:1.25}
+  .organizer-view .header h2{margin:0;color:#fff2d8;font-family:'Syncopate',sans-serif;font-size:25px;line-height:1.35;letter-spacing:-.05em}
+  .organizer-view .organizer-eyebrow{margin:0 0 10px;color:#eec675;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
   .organizer-view .card{padding:24px 26px;border-color:rgba(255,196,111,.18);border-radius:16px;background:linear-gradient(145deg,rgba(42,30,18,.92),rgba(20,25,23,.94))}
-  .organizer-view .info-item{padding:15px;background:rgba(24,27,24,.72);color:#c8ad82}
-  .organizer-view .info-item span{color:#fff0d1;font-weight:600}
-  .organizer-view .section-title{color:#f3c77e;font-family:'Cinzel',serif;font-size:15px}
+  .organizer-view .info-grid{gap:8px}.organizer-view .info-item{padding:15px;border:1px solid rgba(255,196,111,.1);border-radius:10px;background:rgba(24,27,24,.72);color:#c8ad82;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .organizer-view .info-item span{color:#fff0d1;font-size:16px;font-weight:600;letter-spacing:0;text-transform:none}
+  .organizer-view .section-title{color:#f3c77e;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.03em}
+  .organizer-view .card p{color:#ddcfba;font-size:15px;line-height:1.65}.organizer-view .data-table{border:1px solid rgba(255,196,111,.14);border-radius:10px;overflow:hidden}
   .organizer-view .data-table th{color:#c8ad82;background:rgba(255,196,111,.08)}
   .organizer-view .data-table td{color:#f0e2ca}
   .organizer-view .approve{color:#9ee4b6;font-weight:700}.organizer-view .reject{color:#f0a4a4;font-weight:700}
@@ -149,6 +151,7 @@
 
   <!-- HEADER -->
   <div class="header">
+    {% if user.role == 'organizer' %}<p class="organizer-eyebrow">Tournament command center</p>{% endif %}
     <h2>
       {{ tournament.name }}
       <span class="pill {{ tournament.status }}">
