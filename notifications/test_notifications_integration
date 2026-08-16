@@ -124,3 +124,37 @@ class NotificationIntegrationTests(TestCase):
                 user=self.other_player
             ).exists()
         )
+# IT-NOT-05
+    def test_join_request_creates_captain_notification(self):
+        from teams.models import Team, TeamMembership
+
+        team = Team.objects.create(
+            name="Alpha",
+            game="valorant",
+            captain=self.player,
+        )
+
+        TeamMembership.objects.create(
+            user=self.player,
+            team=team
+        )
+
+        self.client.force_login(self.other_player)
+
+        self.client.post(
+            reverse(
+                "request_to_join",
+                args=[team.pk]
+            )
+        )
+
+        notification = Notification.objects.filter(
+            user=self.player
+        ).first()
+
+        self.assertIsNotNone(notification)
+
+        self.assertIn(
+            self.other_player.username,
+            notification.message
+        )
