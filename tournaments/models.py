@@ -79,6 +79,13 @@ class Tournament(models.Model):
             return 'closed' if timezone.now() >= self.registration_deadline else 'active'
         return 'closed' if timezone.localdate() >= self.start_date else 'active'
 
+    @property
+    def display_status(self):
+        """Status shown to users, including automatic registration closure."""
+        if self.status in {'pending', 'cancelled'}:
+            return self.status
+        return self.enrollment_status
+
     def __str__(self):
         return self.name
 
