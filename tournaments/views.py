@@ -105,10 +105,7 @@ def create_tournament(request):
             if venue:
                 return redirect('venue_booking_payment', pk=booking.pk)
 
-            # ── Go to payment page if payment needed, otherwise go to detail ──
-            if tournament.venue_payment_required:
-                return redirect('tournament_payment_info', pk=tournament.pk)
-
+            # Tournaments without a selected venue go straight to their detail page.
             return redirect('tournament_detail', pk=tournament.pk)
 
     else:
