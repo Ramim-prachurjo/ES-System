@@ -68,3 +68,25 @@ class NotificationIntegrationTests(TestCase):
             response,
             "Other notification"
         )
+# IT-NOT-03
+    def test_visiting_notification_list_marks_notifications_read(self):
+        notification = Notification.objects.create(
+            user=self.player,
+            message="Unread message"
+        )
+
+        self.assertFalse(
+            notification.is_read
+        )
+
+        self.client.force_login(self.player)
+
+        self.client.get(
+            reverse("notification_list")
+        )
+
+        notification.refresh_from_db()
+
+        self.assertTrue(
+            notification.is_read
+        )
