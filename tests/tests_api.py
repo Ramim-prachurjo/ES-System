@@ -94,7 +94,9 @@ class ChatbotApiTests(TestCase):
         )
         self.authenticate()
 
-        response = self.post_json({"message": "What is esports?"})
+        with self.assertLogs("accounts.views", level="WARNING") as logs:
+            response = self.post_json({"message": "What is esports?"})
 
         self.assertEqual(response.status_code, 503)
         self.assertNotIn("test-key", response.content.decode())
+        self.assertIn("HTTP status 429", logs.output[0])
