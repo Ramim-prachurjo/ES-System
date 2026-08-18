@@ -62,6 +62,18 @@
   .team-code-label { color: #8caead; font: 700 10px 'Syncopate', sans-serif; letter-spacing: .09em; text-transform: uppercase; }
   .team-code-box strong { display: block; margin-top: 5px; color: #82f3d6; font: 700 19px 'Rajdhani', sans-serif; letter-spacing: .14em; }
   .team-code-help { max-width: 280px; color: #91aaa8; font: 500 12px/1.35 'Rajdhani', sans-serif; }
+  .player-finder { margin: 0 25px 20px; padding: 16px; border: 1px solid rgba(105, 231, 210, .20); border-radius: 10px; background: rgba(28, 129, 113, .08); }
+  .player-finder h3 { margin: 0; color: #eafffb; font: 700 12px 'Syncopate', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+  .player-finder p { margin: 5px 0 12px; color: #98b8b5; font: 500 13px 'Rajdhani', sans-serif; }
+  .finder-form { display: flex; gap: 9px; max-width: 560px; }
+  .finder-form input { min-width: 0; flex: 1; padding: 9px 11px; border: 1px solid rgba(119, 236, 214, .28); border-radius: 6px; outline: 0; background: rgba(4, 18, 19, .78); color: #efffff; font: 600 14px 'Rajdhani', sans-serif; }
+  .finder-form input:focus { border-color: #6bf0d4; box-shadow: 0 0 0 3px rgba(75, 232, 202, .10); }
+  .btn-find { border: 1px solid rgba(108, 243, 215, .38); background: linear-gradient(135deg, #259f91, #146d65); color: #efffff; }
+  .search-results { display: grid; gap: 8px; margin-top: 13px; }
+  .player-result { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px; border-radius: 7px; background: rgba(5, 19, 21, .58); }
+  .player-result-name { color: #eafffb; font: 700 15px 'Rajdhani', sans-serif; }
+  .player-result-meta { display: block; margin-top: 2px; color: #88a7a3; font: 600 10px 'Syncopate', sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .empty-search { margin-top: 12px; color: #a6bebc; font: 500 13px 'Rajdhani', sans-serif; }
   .lone-action { margin: 0 25px 21px; }
   .empty-team { padding: 58px 24px; text-align: center; border: 1px solid rgba(115, 246, 216, .18); border-radius: 16px; background: rgba(12, 23, 26, .78); }
   .empty-team .empty-mark { display: block; color: #75f2d2; font: 700 35px 'Syncopate', sans-serif; }
@@ -77,15 +89,21 @@
   body.player-theme .captain-line, body.player-theme .metric-label, body.player-theme .capacity-meta, body.player-theme .muted { color:#aaa1bd; }
   body.player-theme .capacity-fill { background:linear-gradient(90deg,#7040d2,#bd91ff); box-shadow:0 0 14px rgba(159,104,255,.34); }
   body.player-theme .btn-transfer { border-color:rgba(193,158,255,.38); background:rgba(140,87,255,.14); color:#dcc7ff; }
+  body.player-theme .player-finder { border-color:rgba(194,157,255,.22); background:rgba(112,64,210,.09); }
+  body.player-theme .finder-form input { border-color:rgba(197,164,255,.28); background:rgba(14,11,34,.78); color:#f3edff; }
+  body.player-theme .finder-form input:focus { border-color:#c2a2ff; box-shadow:0 0 0 3px rgba(164,112,255,.12); }
+  body.player-theme .btn-find { border-color:rgba(205,173,255,.40); background:linear-gradient(135deg,#8250dd,#5530aa); }
+  body.player-theme .player-result { background:rgba(14,11,35,.60); }
   @media (max-width: 650px) {
     .squad-hero { min-height: 210px; padding: 25px 20px; background-position: 60% center; }
     .team-card-top, .team-overview { padding-left: 17px; padding-right: 17px; }
     .team-overview { grid-template-columns: 1fr; gap: 18px; }
     .roster { padding-left: 17px; padding-right: 17px; overflow-x: auto; }
     .members-table { min-width: 580px; }
-    .captain-notice, .team-code-box, .lone-action { margin-left: 17px; margin-right: 17px; }
+    .captain-notice, .team-code-box, .lone-action, .player-finder { margin-left: 17px; margin-right: 17px; }
     .team-code-box { align-items: flex-start; flex-direction: column; }
     .team-card-top { gap: 10px; }
+    .finder-form { flex-direction: column; }
   }
 </style>
 
@@ -121,6 +139,29 @@
             <div class="capacity-bar"><div class="capacity-fill {% if item.current >= item.max %}full{% endif %}" style="width: {% widthratio item.current item.max 100 %}%"></div></div>
           </div>
         </section>
+
+        {% if item.is_captain and item.current < item.max %}
+        <section class="player-finder" aria-label="Invite a player to {{ item.team.name }}">
+          <h3>Find a player</h3>
+          <p>Search by username to send an invitation to this {{ item.team.get_game_display }} roster.</p>
+          <form method="get" class="finder-form">
+            <input type="search" name="player_q" value="{{ player_query }}" placeholder="Enter a player username" aria-label="Player username">
+            <button class="team-action btn-find" type="submit">Search players</button>
+          </form>
+          {% if player_query %}
+            {% if item.player_results %}
+            <div class="search-results">
+              {% for player in item.player_results %}
+              <div class="player-result">
+                <div><span class="player-result-name">{{ player.username }}</span><span class="player-result-meta">Eligible {{ item.team.get_game_display }} player</span></div>
+                <form method="post" action="{% url 'invite_player' item.team.pk %}">{% csrf_token %}<input type="hidden" name="username" value="{{ player.username }}"><input type="hidden" name="next" value="{% url 'my_team' %}?player_q={{ player_query|urlencode }}"><button type="submit" class="team-action btn-transfer">Invite</button></form>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}<p class="empty-search">No eligible players found for “{{ player_query }}”.</p>{% endif %}
+          {% endif %}
+        </section>
+        {% endif %}
 
         <section class="roster">
           <h3 class="roster-heading">Roster</h3>

@@ -265,6 +265,7 @@ def view_player_profile(request, user_id):
         'profile': profile,
         'invitable_teams': invitable_teams,
         'back_url': next_url,
+        'can_view_contact': request.user.role == 'organizer',
     })
 
 
