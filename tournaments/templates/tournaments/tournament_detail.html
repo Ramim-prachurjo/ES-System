@@ -145,10 +145,21 @@
   .organizer-view .approve{color:#9ee4b6;font-weight:700}.organizer-view .reject{color:#f0a4a4;font-weight:700}
   .organizer-view .back-btn{background:rgba(224,143,39,.16);border-color:rgba(255,196,111,.36);color:#ffdda5}
   @media(max-width:640px){.organizer-view .header{padding:22px 19px}.organizer-view .header h2{font-size:22px}.organizer-view .card{padding:18px 15px;overflow-x:auto}.organizer-view .info-grid{grid-template-columns:1fr}.organizer-view .data-table{min-width:620px}}
+
+  .player-tournament-view{max-width:1120px;font-family:'Rajdhani',sans-serif}
+  .player-tournament-view .header{margin-bottom:20px;padding:28px 30px;border:1px solid rgba(188,145,255,.3);border-radius:18px;background:linear-gradient(120deg,#211141,#10182f);box-shadow:0 16px 38px rgba(0,0,0,.22)}
+  .player-tournament-view .header h2{margin:0;color:#f2edff;font-family:'Syncopate',sans-serif;font-size:25px;line-height:1.35;letter-spacing:-.05em}
+  .player-tournament-view .card{padding:24px 26px;border-color:rgba(196,170,255,.18);border-radius:16px;background:linear-gradient(145deg,rgba(29,22,59,.94),rgba(14,24,44,.94))}
+  .player-tournament-view .info-grid{gap:8px}.player-tournament-view .info-item{padding:15px;border:1px solid rgba(196,170,255,.12);border-radius:10px;background:rgba(15,16,42,.7);color:#b9a9d8;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .player-tournament-view .info-item span{color:#f0eaff;font-size:16px;font-weight:600;letter-spacing:0;text-transform:none}
+  .player-tournament-view .section-title{color:#d5baff;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.03em}
+  .player-tournament-view .card p{color:#cec6df;font-size:15px;line-height:1.65}.player-tournament-view .apply-btn{border-color:rgba(193,158,255,.45);background:linear-gradient(135deg,#8b4dff,#6030bd);color:#fff;font-weight:700}
+  .player-tournament-view .back-btn{background:rgba(140,87,255,.16);border-color:rgba(193,158,255,.36);color:#decaff}
+  @media(max-width:640px){.player-tournament-view .header{padding:22px 19px}.player-tournament-view .header h2{font-size:22px}.player-tournament-view .card{padding:18px 15px}.player-tournament-view .info-grid{grid-template-columns:1fr}}
 </style>
 
 
-<div class="container {% if user.role == 'organizer' %}organizer-view{% endif %}">
+<div class="container {% if user.role == 'organizer' %}organizer-view{% elif user.role == 'player' %}player-tournament-view{% endif %}">
 
   <!-- HEADER -->
   <div class="header">

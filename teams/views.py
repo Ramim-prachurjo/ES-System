@@ -16,7 +16,13 @@ User = get_user_model()
 @login_required
 def team_list(request):
     teams = Team.objects.all().select_related('captain')
-    return render(request, 'teams/team_list.html', {'teams': teams})
+    query = request.GET.get('q', '').strip()
+    if request.user.role == 'organizer' and query:
+        teams = teams.filter(name__icontains=query)
+    return render(request, 'teams/team_list.html', {
+        'teams': teams,
+        'query': query,
+    })
 
 
 @login_required
@@ -74,14 +80,17 @@ def team_detail(request, pk):
 @login_required
 def invite_player(request, team_id):
     team = get_object_or_404(Team, pk=team_id)
+    next_url = request.POST.get('next') or reverse('team_detail', kwargs={'pk': team_id})
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = reverse('team_detail', kwargs={'pk': team_id})
 
     if request.user != team.captain:
         messages.error(request, "Only the captain can invite players.")
-        return redirect('team_detail', pk=team_id)
+        return redirect(next_url)
 
     if team.is_full():
         messages.error(request, "Team is full.")
-        return redirect('team_detail', pk=team_id)
+        return redirect(next_url)
 
     if request.method == 'POST':
         form = InvitePlayerForm(request.POST)
@@ -92,11 +101,11 @@ def invite_player(request, team_id):
                 invited_user = User.objects.get(username=username, role='player')
             except User.DoesNotExist:
                 messages.error(request, f"No player found with username '{username}'.")
-                return redirect('team_detail', pk=team_id)
+                return redirect(next_url)
 
             if invited_user == request.user:
                 messages.error(request, "You can't invite yourself.")
-                return redirect('team_detail', pk=team_id)
+                return redirect(next_url)
 
             # ✅ FIX: block if already in ANY team for this game
             already_in = TeamMembership.objects.filter(
@@ -106,7 +115,7 @@ def invite_player(request, team_id):
 
             if already_in:
                 messages.error(request, f"{username} is already in a {team.game.title()} team.")
-                return redirect('team_detail', pk=team_id)
+                return redirect(next_url)
 
             already_invited = TeamInvite.objects.filter(
                 team=team,
@@ -116,7 +125,7 @@ def invite_player(request, team_id):
 
             if already_invited:
                 messages.error(request, f"{username} has already been invited.")
-                return redirect('team_detail', pk=team_id)
+                return redirect(next_url)
 
             TeamInvite.objects.create(team=team, invited_user=invited_user)
 
@@ -128,7 +137,7 @@ def invite_player(request, team_id):
 
             messages.success(request, f"Invite sent to {username}.")
 
-    return redirect('team_detail', pk=team_id)
+    return redirect(next_url)
 
 
 @login_required
@@ -420,19 +429,36 @@ def my_team(request):
         user=request.user
     ).select_related('team', 'team__captain')
 
+    player_query = request.GET.get('player_q', '').strip()
     team_data = []
     for ms in memberships:
         team    = ms.team
         members = TeamMembership.objects.filter(team=team).select_related('user')
+        player_results = User.objects.none()
+        if player_query and request.user == team.captain and not team.is_full():
+            player_results = User.objects.filter(
+                role='player', username__icontains=player_query
+            ).exclude(
+                pk=request.user.pk
+            ).exclude(
+                memberships__team__game=team.game
+            ).exclude(
+                received_invites__team=team,
+                received_invites__status='pending',
+            ).distinct()[:8]
         team_data.append({
             'team':       team,
             'members':    members,
             'is_captain': request.user == team.captain,
             'current':    members.count(),
             'max':        team.max_size(),
+            'player_results': player_results,
         })
 
-    return render(request, 'teams/my_team.html', {'team_data': team_data})
+    return render(request, 'teams/my_team.html', {
+        'team_data': team_data,
+        'player_query': player_query,
+    })
 
 
 @login_required

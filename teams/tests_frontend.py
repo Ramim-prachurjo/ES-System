@@ -27,6 +27,7 @@ class TeamsFrontendTests(TestCase):
             username="player1",
             password="testpass123",
             role="player",
+            phone="01700000000",
         )
 
         self.player2 = User.objects.create_user(
@@ -89,6 +90,29 @@ class TeamsFrontendTests(TestCase):
         response = self.client.get(reverse("team_list"))
 
         self.assertEqual(response.status_code, 200)
+
+    def test_organizer_can_search_teams_by_name(self):
+        organizer = User.objects.create_user(
+            username="organizer", password="testpass123", role="organizer"
+        )
+        self.client.force_login(organizer)
+
+        response = self.client.get(reverse("team_list"), {"q": "alpha"})
+
+        self.assertContains(response, "Alpha Squad")
+        self.assertContains(response, 'value="alpha"')
+
+    def test_organizer_can_see_player_phone_on_profile(self):
+        organizer = User.objects.create_user(
+            username="phone_organizer", password="testpass123", role="organizer"
+        )
+        self.client.force_login(organizer)
+
+        response = self.client.get(
+            reverse("view_player_profile", kwargs={"user_id": self.player.pk})
+        )
+
+        self.assertContains(response, "01700000000")
 
     # ==========================================================
     # CREATE TEAM FRONTEND
@@ -212,6 +236,24 @@ class TeamsFrontendTests(TestCase):
 
         self.assertContains(response, reverse("team_detail", kwargs={"pk": self.team.pk}))
         self.assertNotContains(response, self.team.team_code)
+
+    def test_captain_can_search_and_invite_an_eligible_player_from_my_team(self):
+        response = self.client.get(reverse("my_team"), {"player_q": "player1"})
+
+        self.assertContains(response, "Find a player")
+        self.assertContains(response, "player1")
+        self.assertContains(
+            response,
+            reverse("invite_player", kwargs={"team_id": self.team.pk}),
+        )
+
+        response = self.client.post(
+            reverse("invite_player", kwargs={"team_id": self.team.pk}),
+            {"username": "player1", "next": reverse("my_team")},
+        )
+
+        self.assertRedirects(response, reverse("my_team"))
+        self.assertTrue(TeamInvite.objects.filter(team=self.team, invited_user=self.player).exists())
 
     # ==========================================================
     # MY INVITES FRONTEND
