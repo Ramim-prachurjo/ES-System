@@ -462,6 +462,36 @@ def my_team(request):
 
 
 @login_required
+def rename_team(request, team_id):
+    """Allow only the current captain to rename their own team."""
+    team = get_object_or_404(Team, pk=team_id)
+    next_url = request.POST.get('next') or reverse('team_detail', kwargs={'pk': team_id})
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = reverse('team_detail', kwargs={'pk': team_id})
+
+    if request.user != team.captain:
+        messages.error(request, "Only the team captain can change the team name.")
+        return redirect(next_url)
+
+    if request.method != 'POST':
+        return redirect(next_url)
+
+    new_name = request.POST.get('name', '').strip()
+    if len(new_name) < 2 or len(new_name) > 100:
+        messages.error(request, "Team name must be between 2 and 100 characters.")
+    elif Team.objects.exclude(pk=team.pk).filter(name__iexact=new_name).exists():
+        messages.error(request, "That team name is already being used.")
+    elif new_name == team.name:
+        messages.info(request, "Your team already has that name.")
+    else:
+        team.name = new_name
+        team.save(update_fields=['name'])
+        messages.success(request, "Team name updated successfully.")
+
+    return redirect(next_url)
+
+
+@login_required
 def remove_member(request, team_id, user_id):
     """
     Captain removes a member from their team.

@@ -63,7 +63,14 @@ class TournamentForm(forms.ModelForm):
             # Explicitly discard it so an own-address tournament never books a venue.
             cleaned_data['venue'] = None
             venue = None
-        if venue and start and end and VenueBooking.objects.filter(venue=venue, status__in=['pending', 'confirmed'], start_date__lte=end, end_date__gte=start).exists():
+        bookings = VenueBooking.objects.filter(
+            venue=venue, status__in=['pending', 'confirmed'],
+            start_date__lte=end, end_date__gte=start,
+        )
+        # Do not treat this tournament's current booking as a conflict on edit.
+        if self.instance.pk:
+            bookings = bookings.exclude(tournament=self.instance)
+        if venue and start and end and bookings.exists():
             self.add_error('venue', 'This venue is unavailable for those dates.')
 
         return cleaned_data

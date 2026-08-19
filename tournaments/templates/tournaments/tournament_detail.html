@@ -144,6 +144,8 @@
   .organizer-view .data-table td{color:#f0e2ca}
   .organizer-view .approve{color:#9ee4b6;font-weight:700}.organizer-view .reject{color:#f0a4a4;font-weight:700}
   .organizer-view .back-btn{background:rgba(224,143,39,.16);border-color:rgba(255,196,111,.36);color:#ffdda5}
+  .edit-btn{display:inline-block;margin-top:14px;padding:8px 13px;border:1px solid rgba(255,196,111,.40);border-radius:7px;background:rgba(224,143,39,.16);color:#ffdda5;text-decoration:none;font:700 11px 'Rajdhani',sans-serif;letter-spacing:.05em}
+  .edit-btn:hover{filter:brightness(1.16)} .edit-locked{margin-top:14px;color:#c8ad82;font-size:13px}
   @media(max-width:640px){.organizer-view .header{padding:22px 19px}.organizer-view .header h2{font-size:22px}.organizer-view .card{padding:18px 15px;overflow-x:auto}.organizer-view .info-grid{grid-template-columns:1fr}.organizer-view .data-table{min-width:620px}}
 
   .player-tournament-view{max-width:1120px;font-family:'Rajdhani',sans-serif}
@@ -170,6 +172,13 @@
         {{ tournament.display_status|title }}
       </span>
     </h2>
+    {% if user == tournament.organizer %}
+      {% if tournament.enrollment_status == 'active' %}
+        <a class="edit-btn" href="{% url 'edit_tournament' tournament.pk %}">Edit tournament</a>
+      {% else %}
+        <p class="edit-locked">Editing is locked because enrollment has closed.</p>
+      {% endif %}
+    {% endif %}
   </div>
 
   <!-- INFO -->

@@ -2,6 +2,7 @@ import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from teams.models import Team
 from venues.models import VenueBooking
 from .models import Tournament, TournamentApplication
@@ -121,6 +122,58 @@ def tournament_payment_info(request, pk):
     # Only the organizer who created it can see this page
     tournament = get_object_or_404(Tournament, pk=pk, organizer=request.user)
     return render(request, 'tournaments/tournament_payment.html', {'tournament': tournament})
+
+
+@login_required
+def edit_tournament(request, pk):
+    """Organizers can edit their tournaments only while enrollment is open."""
+    tournament = get_object_or_404(Tournament, pk=pk)
+    if request.user != tournament.organizer:
+        messages.error(request, "Only the organizer can edit this tournament.")
+        return redirect('tournament_detail', pk=tournament.pk)
+    if tournament.enrollment_status == 'closed':
+        messages.error(request, "Tournament editing is locked because enrollment has closed.")
+        return redirect('tournament_detail', pk=tournament.pk)
+
+    if request.method == 'POST':
+        form = TournamentForm(request.POST, instance=tournament)
+        if form.is_valid():
+            tournament = form.save(commit=False)
+            venue = form.cleaned_data.get('venue') if form.cleaned_data.get('needs_venue') else None
+            tournament.venue_payment_required = bool(venue and venue.requires_payment)
+            tournament.venue_payment_amount = (venue.rental_fee or venue.payment_amount) if venue else 0
+            if tournament.venue_payment_required and not tournament.venue_payment_code:
+                tournament.venue_payment_code = f"TRN-{uuid.uuid4().hex[:8].upper()}"
+            if not tournament.venue_payment_required:
+                tournament.venue_payment_code = ''
+            tournament.save()
+
+            booking = VenueBooking.objects.filter(tournament=tournament).first()
+            if venue:
+                amount = venue.rental_fee or venue.payment_amount
+                if booking:
+                    booking.venue, booking.start_date, booking.end_date = venue, tournament.start_date, tournament.end_date
+                    booking.payment_required, booking.payment_amount = amount > 0, amount
+                    booking.save()
+                else:
+                    VenueBooking.objects.create(
+                        venue=venue, tournament=tournament, booked_by=request.user,
+                        start_date=tournament.start_date, end_date=tournament.end_date,
+                        status='pending', payment_required=amount > 0, payment_amount=amount,
+                        payment_code=f"{uuid.uuid4().hex[:2].upper()}{uuid.uuid4().int % 1000:03d}",
+                    )
+            elif booking:
+                booking.delete()
+
+            messages.success(request, "Tournament details updated successfully.")
+            return redirect('tournament_detail', pk=tournament.pk)
+    else:
+        form = TournamentForm(instance=tournament)
+
+    return render(request, 'tournaments/tournament_form.html', {
+        'form': form, 'title': 'Edit Tournament', 'submit_label': 'Save Changes',
+        'back_url': reverse('tournament_detail', kwargs={'pk': tournament.pk}),
+    })
 
 
 @login_required

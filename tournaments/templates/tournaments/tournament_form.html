@@ -120,13 +120,13 @@
       <div id="payment-notice"></div>
 
       <button type="submit" class="btn-submit">
-        Submit for Approval
+        {{ submit_label|default:"Submit for Approval" }}
       </button>
     </form>
 
   </div>
 
-  <a href="{% url 'dashboard' %}" class="btn-back">← Back to Home</a>
+  {% if back_url %}<a href="{{ back_url }}" class="btn-back">← Back to tournament</a>{% else %}<a href="{% url 'dashboard' %}" class="btn-back">← Back to Home</a>{% endif %}
 </div>
 
 <script>
