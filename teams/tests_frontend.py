@@ -255,6 +255,28 @@ class TeamsFrontendTests(TestCase):
         self.assertRedirects(response, reverse("my_team"))
         self.assertTrue(TeamInvite.objects.filter(team=self.team, invited_user=self.player).exists())
 
+    def test_captain_can_rename_team_from_my_team(self):
+        response = self.client.post(
+            reverse("rename_team", kwargs={"team_id": self.team.pk}),
+            {"name": "Renamed Squad", "next": reverse("my_team")},
+        )
+
+        self.assertRedirects(response, reverse("my_team"))
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.name, "Renamed Squad")
+
+    def test_regular_member_cannot_rename_team(self):
+        TeamMembership.objects.create(user=self.player, team=self.team)
+        self.client.force_login(self.player)
+
+        self.client.post(
+            reverse("rename_team", kwargs={"team_id": self.team.pk}),
+            {"name": "Not Allowed", "next": reverse("my_team")},
+        )
+
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.name, "Alpha Squad")
+
     # ==========================================================
     # MY INVITES FRONTEND
     # ==========================================================

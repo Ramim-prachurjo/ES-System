@@ -12,6 +12,55 @@ from venues.models import Venue, VenueBooking
 from .models import Tournament, TournamentApplication
 from .forms import TournamentForm
 
+
+class TournamentEditTests(TestCase):
+    def setUp(self):
+        self.organizer = CustomUser.objects.create_user(
+            username='editing_organizer', password='StrongPass123!', role='organizer'
+        )
+        self.tournament = Tournament.objects.create(
+            name='Editable Tournament', organizer=self.organizer, games='valorant',
+            needs_venue=False, venue_address='Dhaka',
+            start_date=timezone.localdate() + timedelta(days=14),
+            end_date=timezone.localdate() + timedelta(days=15),
+            registration_deadline=timezone.now() + timedelta(days=7),
+            max_teams=8, status='active',
+        )
+        self.client.login(username='editing_organizer', password='StrongPass123!')
+
+    def _edit_data(self, **overrides):
+        data = {
+            'name': 'Updated Tournament', 'description': 'Updated description',
+            'rules': 'Updated rules', 'games': ['valorant'], 'needs_venue': 'False',
+            'venue_address': 'Updated Dhaka address',
+            'start_date': str(self.tournament.start_date),
+            'end_date': str(self.tournament.end_date),
+            'registration_deadline': self.tournament.registration_deadline.strftime('%Y-%m-%dT%H:%M'),
+            'max_teams': '10', 'entry_fee': '0', 'prize_pool': '0',
+        }
+        data.update(overrides)
+        return data
+
+    def test_organizer_can_edit_before_enrollment_deadline(self):
+        response = self.client.post(
+            reverse('edit_tournament', kwargs={'pk': self.tournament.pk}), self._edit_data()
+        )
+        self.assertRedirects(response, reverse('tournament_detail', kwargs={'pk': self.tournament.pk}))
+        self.tournament.refresh_from_db()
+        self.assertEqual(self.tournament.name, 'Updated Tournament')
+        self.assertEqual(self.tournament.max_teams, 10)
+
+    def test_organizer_cannot_edit_after_enrollment_deadline(self):
+        self.tournament.registration_deadline = timezone.now() - timedelta(minutes=1)
+        self.tournament.save(update_fields=['registration_deadline'])
+
+        response = self.client.post(
+            reverse('edit_tournament', kwargs={'pk': self.tournament.pk}), self._edit_data(name='Blocked change')
+        )
+        self.assertRedirects(response, reverse('tournament_detail', kwargs={'pk': self.tournament.pk}))
+        self.tournament.refresh_from_db()
+        self.assertEqual(self.tournament.name, 'Editable Tournament')
+
 # ============================================================
 # TOURNAMENT MODEL TESTS
 # ============================================================
